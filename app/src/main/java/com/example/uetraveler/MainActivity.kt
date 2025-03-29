@@ -73,6 +73,7 @@ class MainActivity : AppCompatActivity() {
             IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED),
             IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED)
         )
+        setProcedureStatus("Scanning")
         Log.d("MainActivity", "Enabling NFC scanning...") // Debugging Log
        nfcAdapter?.enableForegroundDispatch(this, pendingIntent, filters, null)
     }
@@ -156,6 +157,7 @@ class MainActivity : AppCompatActivity() {
     private fun executeActionBasedOnTag(data: String) {
         when (data.uppercase()) {
             "START" -> {
+                timeLeftInMilliSeconds = 10000
                 startTimer()
                 Toast.makeText(this, "Timer started!", Toast.LENGTH_SHORT).show()
                 Log.d("MainActivity", "START command executed")
