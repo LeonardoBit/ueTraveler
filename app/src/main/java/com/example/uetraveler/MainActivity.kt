@@ -15,6 +15,9 @@ import android.widget.TextView
 import android.widget.Toast
 import java.nio.charset.Charset
 import android.util.Log
+import androidx.appcompat.app.AlertDialog
+
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var  timerTextView: TextView
@@ -152,11 +155,43 @@ class MainActivity : AppCompatActivity() {
 
     private fun executeActionBasedOnTag(data: String) {
         when (data.uppercase()) {
-            "START" -> startTimer()
-            "PAUSE" -> pauseTimer()
-            "RESET" -> resetTimer()
-            else -> Toast.makeText(this, "Unknown NFC tag: $data", Toast.LENGTH_SHORT).show()
+            "START" -> {
+                startTimer()
+                Toast.makeText(this, "Timer started!", Toast.LENGTH_SHORT).show()
+                Log.d("MainActivity", "START command executed")
+            }
+            "PAUSE" -> {
+                pauseTimer()
+                setProcedureStatus("Procedure paused")
+            }
+            "RESET" -> {
+                resetTimer()
+                startTimer()
+                Toast.makeText(this, "Timer reset!", Toast.LENGTH_SHORT).show()
+            }
+            "LOST"-> {
+                ueLost()
+            }
+            else -> {
+                Toast.makeText(this, "Unknown NFC tag: $data", Toast.LENGTH_SHORT).show()
+                Log.e("MainActivity", "Unrecognized NFC command: $data")
+            }
         }
+    }
+
+    private fun ueLost() {
+        openAlertDialog("!!!UE lost!!!","ABNORMAL: UE LOST DUE TO PCI CONFLICT. Please reestablish connection (Scan Connetion Start TAG)")
+        connectionLost()
+        timeLeftInMilliSeconds = 10000
+    }
+
+
+    private fun openAlertDialog(title:String, message: String){
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 
     private fun connectionLost() {
@@ -185,7 +220,7 @@ class MainActivity : AppCompatActivity() {
         }
         scanButton.text = "Scan TAG"
         timerTextView.setBackgroundColor(Color.GREEN)
-        setProcedureStatus("Procedure ongoing")
+        setProcedureStatus("CONNECTED")
     }
 
     private fun pauseTimer() {
@@ -198,7 +233,7 @@ class MainActivity : AppCompatActivity() {
         countDownTimer?.cancel()
         timeLeftInMilliSeconds = 10000 // Reset to 10 seconds
         updateTimerText()
-        //isTimerRunning = false
+        isTimerRunning = false
     }
 
     private fun setProcedureStatus(status: String){
@@ -209,6 +244,7 @@ class MainActivity : AppCompatActivity() {
         val seconds = (timeLeftInMilliSeconds / 1000).toInt()
         timerTextView.text = "$seconds s"
     }
+
 }
 
 
