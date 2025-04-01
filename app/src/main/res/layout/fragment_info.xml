@@ -3,12 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.StageFragment">
+    tools:context=".fragments.InfoFragment">
 
     <TextView
+        android:id="@+id/infoText"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:text="Hello" />
+        android:text="Welcome traveler!" />
 
 </FrameLayout>
