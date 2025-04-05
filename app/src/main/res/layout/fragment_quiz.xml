@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.QuizFragment">
+
+    <LinearLayout
+        android:padding="4sp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/questionTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Question placeholder" />
+
+        <RadioButton
+            android:id="@+id/btnA"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="A" />
+
+        <RadioButton
+            android:id="@+id/btnB"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="B" />
+
+        <RadioButton
+            android:id="@+id/btnC"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="C" />
+    </LinearLayout>
+
+</FrameLayout>

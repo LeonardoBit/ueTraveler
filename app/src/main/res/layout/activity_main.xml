@@ -8,31 +8,44 @@
     tools:context=".MainActivity"
     android:id="@+id/rootLayout">
 
-    <TextView
-        android:id="@+id/procInfoTextView"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/holo_green_light"
-        android:text="Procedure In procces"
-        android:textSize="30dp"
+        android:orientation="horizontal"
         android:gravity="center"
-        android:layout_weight="2"
-        />
-    <TextView
-        android:id="@+id/tvTimer"
+        android:weightSum="6">
+
+        <TextView
+            android:id="@+id/procInfoTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:background="@android:color/holo_green_light"
+            android:gravity="center"
+            android:text="Procedure In process"
+            android:textSize="30sp" />
+
+        <TextView
+            android:id="@+id/tvTimer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:text="Hello World!"
+            android:textSize="30sp" />
+    </LinearLayout>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentContainerView"
+        android:name="com.example.uetraveler.fragments.InfoFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        android:textSize="30dp"
-        android:gravity="center"
-        android:layout_weight="4"
-         />
+        android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/btnScan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Start"
         android:layout_weight="1"/>
-
 
 </LinearLayout>
