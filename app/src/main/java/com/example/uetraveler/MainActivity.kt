@@ -15,6 +15,10 @@ import android.widget.Toast
 import java.nio.charset.Charset
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
+import com.example.uetraveler.fragments.InfoFragment
+import com.example.uetraveler.fragments.QuizFragment
 
 class MainActivity : AppCompatActivity(), IGameEventHandler {
     private lateinit var timerTextView: TextView
@@ -23,6 +27,9 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
 
     private lateinit var inactivityTimer: InactivityTimer
     private lateinit var gameHandler: GameHandler
+
+    private lateinit var infoFragment: InfoFragment
+    private lateinit var quizFragment: QuizFragment
 
     private var nfcAdapter: NfcAdapter? = null
     private var isScanning = false
@@ -58,6 +65,8 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             isScanning = !isScanning
         }
 
+        infoFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as InfoFragment
+        quizFragment = QuizFragment({ correct -> quizCallback(correct) })
 
         inactivityTimer.registerTickCallback { millisLeft ->
             updateTimerText((millisLeft / 1000).toInt())
@@ -124,7 +133,19 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         }
     }
 
-    //TO DO Fix timer pause when scanning is ON but not TAG is scanned and button pressed again 
+    private fun quizCallback(correct: Boolean) {
+        val message = if (correct) "Correct!" else "Wrong!"
+        infoFragment.setInfoText(message)
+        showFragment(infoFragment)
+    }
+
+    private fun showFragment(frag: Fragment) {
+        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.fragmentContainerView, frag)
+        transaction.commit()
+    }
+
+    //TO DO Fix timer pause when scanning is ON but not TAG is scanned and button pressed again
 
     private fun readFromTag(tag: Tag) {
         Log.d("MainActivity", "Scanning tag...")
@@ -199,6 +220,12 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 setProcedureStatus(ProcedureStatus.CONNECTED)
                 timerTextView.setBackgroundColor(Color.GREEN)
                 Toast.makeText(this, "Timer started!", Toast.LENGTH_SHORT).show()
+                quizFragment.setQuestion(
+                    "How much is 2+2?",
+                    listOf("3", "4", "2"),
+                    1
+                )
+                showFragment(quizFragment)
             }
             EGameEvent.UE_LOST -> {
                 if (procInfoTextView.text == ProcedureStatus.CONNECTION_LOST){
