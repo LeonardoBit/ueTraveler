@@ -29,6 +29,10 @@ class GameHandler(private var inactivityTimer: InactivityTimer) {
             NFCTag.LOST -> {
                 sendEvent(EGameEvent.UE_LOST)
             }
+            NFCTag.QUIZ -> {
+                inactivityTimer.stopTimer()
+                sendEvent(EGameEvent.QUIZ)
+            }
             else -> {
                 Log.e("GameHandler", "Unrecognized NFC command: $tag")
             }

@@ -9,6 +9,8 @@ import android.nfc.tech.Ndef
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -220,12 +222,6 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 setProcedureStatus(ProcedureStatus.CONNECTED)
                 timerTextView.setBackgroundColor(Color.GREEN)
                 Toast.makeText(this, "Timer started!", Toast.LENGTH_SHORT).show()
-                quizFragment.setQuestion(
-                    "How much is 2+2?",
-                    listOf("3", "4", "2"),
-                    1
-                )
-                showFragment(quizFragment)
             }
             EGameEvent.UE_LOST -> {
                 if (procInfoTextView.text == ProcedureStatus.CONNECTION_LOST){
@@ -249,6 +245,18 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             }
             EGameEvent.PAUSE -> {
                 setProcedureStatus("Procedure paused")
+            }
+            EGameEvent.QUIZ -> {
+                setProcedureStatus("QUIZ")
+                showFragment(quizFragment)
+                Handler(Looper.getMainLooper()).post {
+                    quizFragment.setQuestion(
+                        "How much is 2+2?",
+                        listOf("3", "4", "2"),
+                        1
+                    )
+                }
+
             }
             else -> {
                 Log.d("MainActivity", "Unhandled game event: $event")

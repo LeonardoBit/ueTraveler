@@ -5,4 +5,5 @@ object NFCTag {
     const val PAUSE = "PAUSE"
     const val RESET = "RESET"
     const val LOST = "LOST"
+    const val QUIZ = "QUIZ"
 }

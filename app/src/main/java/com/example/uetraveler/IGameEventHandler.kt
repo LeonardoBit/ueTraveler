@@ -9,5 +9,6 @@ enum class EGameEvent {
     START,
     UE_LOST,
     RESET,
-    PAUSE
+    PAUSE,
+    QUIZ
 }

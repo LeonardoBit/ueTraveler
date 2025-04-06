@@ -11,13 +11,14 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:gravity="center"
-        android:weightSum="6">
-
+        android:weightSum="6"
+        android:layout_weight="1"
+        >
         <TextView
             android:id="@+id/procInfoTextView"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="4"
             android:background="@android:color/holo_green_light"
@@ -27,7 +28,7 @@
 
         <TextView
             android:id="@+id/tvTimer"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:gravity="center"
@@ -39,7 +40,8 @@
         android:id="@+id/fragmentContainerView"
         android:name="com.example.uetraveler.fragments.InfoFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_weight="3"/>
 
     <Button
         android:id="@+id/btnScan"
