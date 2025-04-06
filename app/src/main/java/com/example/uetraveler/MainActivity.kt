@@ -35,51 +35,66 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         scanButton = findViewById(R.id.btnScan)
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
 
+        inactivityTimer = InactivityTimer()
+
         if (nfcAdapter == null) {
             Toast.makeText(this, "NFC not supported on this device", Toast.LENGTH_LONG).show()
             finish()
         }
-
         updateTimerText(0)
 
         scanButton.setOnClickListener{
             if (!isScanning) {
                 enableNfcScanning()
-                scanButton.text = "Start"
+                inactivityTimer.stopTimer()
+                scanButton.text = "Stop scanning"
                 Toast.makeText(this, "Place your NFC tag near the device", Toast.LENGTH_SHORT).show()
             } else {
                 disableNfcScanning()
-                scanButton.text = "Scan TAG"
-                timerTextView.setBackgroundColor(Color.GREEN)
-                setProcedureStatus("CONNECTED")
-
+                scanButton.text = "Start scanning"
                 Toast.makeText(this, "NFC scanning stopped", Toast.LENGTH_SHORT).show()
+                inactivityTimer.resumeTimer()
             }
             isScanning = !isScanning
         }
 
-        inactivityTimer = InactivityTimer()
+
         inactivityTimer.registerTickCallback { millisLeft ->
             updateTimerText((millisLeft / 1000).toInt())
+        }
+
+        inactivityTimer.registerFinishedCallback {
+            connectionLost()
         }
         gameHandler = GameHandler(inactivityTimer)
         gameHandler.registerEventHandler(this)
     }
 
+    private fun connectionLost() {
+        timerTextView.setBackgroundColor(Color.RED)
+        setProcedureStatus(ProcedureStatus.CONNECTION_LOST)
+    }
+
     private fun enableNfcScanning() {
         val pendingIntent = PendingIntent.getActivity(
             this, 0, Intent(this, javaClass).apply {
-                addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP) // Ensures the same instance is used
+                addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )
-        val filters = arrayOf(
-            IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED),
-            IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED)
-        )
-        setProcedureStatus("Scanning")
-        Log.d("MainActivity", "Enabling NFC scanning...") // Debugging Log
-       nfcAdapter?.enableForegroundDispatch(this, pendingIntent, filters, null)
+        val ndefFilter = IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED).apply {
+            try {
+                addDataType("text/plain")
+            } catch (e: IntentFilter.MalformedMimeTypeException) {
+                throw RuntimeException("Failed to add MIME type", e)
+            }
+        }
+        val filters = arrayOf(ndefFilter)
+
+        val techList = arrayOf(arrayOf(android.nfc.tech.Ndef::class.java.name))
+
+        Log.d("MainActivity", "Enabling NFC scanning...")
+        nfcAdapter?.enableForegroundDispatch(this, pendingIntent, filters, techList)
     }
 
     private fun disableNfcScanning() {
@@ -108,6 +123,8 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             }
         }
     }
+
+    //TO DO Fix timer pause when scanning is ON but not TAG is scanned and button pressed again 
 
     private fun readFromTag(tag: Tag) {
         Log.d("MainActivity", "Scanning tag...")
@@ -138,9 +155,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 ).trim()
 
                 runOnUiThread {
-                    setProcedureStatus("NFC Scanned: $text")
                     executeActionBasedOnTag(text)
-
                     isScanning = false
                 }
             } else {
@@ -181,16 +196,29 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
     override fun handleGameEvent(event: EGameEvent) {
         when (event) {
             EGameEvent.START -> {
+                setProcedureStatus(ProcedureStatus.CONNECTED)
+                timerTextView.setBackgroundColor(Color.GREEN)
                 Toast.makeText(this, "Timer started!", Toast.LENGTH_SHORT).show()
             }
             EGameEvent.UE_LOST -> {
-                timerTextView.setBackgroundColor(Color.RED)
-                setProcedureStatus("Connection lost")
-                scanButton.text = "Start"
-                openAlertDialog("!!!UE lost!!!","ABNORMAL: UE LOST DUE TO PCI CONFLICT. Please reestablish connection (Scan Connetion Start TAG)")
+                if (procInfoTextView.text == ProcedureStatus.CONNECTION_LOST){
+                    inactivityTimer.stopTimer()
+                    openAlertDialog("Connection lost ", "Please attach again by scanning initial connection tag")
+                }else{
+                    timerTextView.setBackgroundColor(Color.RED)
+                    setProcedureStatus(ProcedureStatus.CONNECTION_LOST)
+                    openAlertDialog("!!!UE lost!!!","ABNORMAL: UE LOST DUE TO PCI CONFLICT. Please reestablish connection (Scan Connetion Start TAG)")
+                }
             }
             EGameEvent.RESET -> {
-                Toast.makeText(this, "Timer reset!", Toast.LENGTH_SHORT).show()
+                if (procInfoTextView.text == ProcedureStatus.CONNECTION_LOST){
+                    inactivityTimer.stopTimer()
+                    openAlertDialog("Connection lost ", "Please attach again by scanning initial connection tag")
+                }else {
+                    setProcedureStatus(ProcedureStatus.CONNECTED)
+                    timerTextView.setBackgroundColor(Color.GREEN)
+                    Toast.makeText(this, "Timer reset!", Toast.LENGTH_SHORT).show()
+                }
             }
             EGameEvent.PAUSE -> {
                 setProcedureStatus("Procedure paused")
@@ -199,5 +227,6 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 Log.d("MainActivity", "Unhandled game event: $event")
             }
         }
+        scanButton.text = "Start scanning"
     }
 }

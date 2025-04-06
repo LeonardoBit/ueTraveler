@@ -13,6 +13,7 @@ class GameHandler(private var inactivityTimer: InactivityTimer) {
     fun handleTag(tag: String) {
         when (tag.uppercase()) {
             NFCTag.START -> {
+                inactivityTimer.resetTimer()
                 inactivityTimer.startTimer()
                 sendEvent(EGameEvent.START)
             }
@@ -21,7 +22,7 @@ class GameHandler(private var inactivityTimer: InactivityTimer) {
                 sendEvent(EGameEvent.PAUSE)
             }
             NFCTag.RESET -> {
-                inactivityTimer.stopTimer()
+                inactivityTimer.resetTimer()
                 inactivityTimer.startTimer()
                 sendEvent(EGameEvent.RESET)
             }

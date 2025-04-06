@@ -3,7 +3,8 @@ package com.example.uetraveler
 import android.os.CountDownTimer
 
 class InactivityTimer {
-    private val timeLeftInMilliSeconds = 10000L
+    private var timeLeftInMillis = 10000L
+    private val totalTimeInMillis = timeLeftInMillis
 
     private var countDownTimer: CountDownTimer? = null
     var isTimerRunning = false
@@ -21,24 +22,38 @@ class InactivityTimer {
     }
 
     fun startTimer() {
-        if(!isTimerRunning){
-            countDownTimer = object: CountDownTimer(timeLeftInMilliSeconds,1000) {
+        if (!isTimerRunning) {
+            countDownTimer = object : CountDownTimer(timeLeftInMillis, 1000) {
                 override fun onTick(millisUntilFinished: Long) {
+                    timeLeftInMillis = millisUntilFinished
                     timerTickCallbacks.forEach { it(millisUntilFinished) }
                 }
 
                 override fun onFinish() {
+                    isTimerRunning = false
+                    timeLeftInMillis = totalTimeInMillis // Reset after finishing
                     timerFinishedCallbacks.forEach { it() }
-                    stopTimer()
                 }
             }.start()
             isTimerRunning = true
         }
-
     }
 
     fun stopTimer(){
         countDownTimer?.cancel()
         isTimerRunning = false
     }
+
+    fun resetTimer() {
+        stopTimer()
+        timeLeftInMillis = totalTimeInMillis
+    }
+
+    fun resumeTimer() {
+        if (!isTimerRunning && timeLeftInMillis > 0) {
+            startTimer()
+        }
+    }
+
+
 }
