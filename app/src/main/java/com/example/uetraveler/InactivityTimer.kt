@@ -2,9 +2,9 @@ package com.example.uetraveler
 
 import android.os.CountDownTimer
 
-class InactivityTimer {
-    private var timeLeftInMillis = 10000L
-    private val totalTimeInMillis = timeLeftInMillis
+class InactivityTimer(private var totalTimeInMillis: Long = 10000L) {
+    private var timeLeftInMillis = totalTimeInMillis
+
 
     private var countDownTimer: CountDownTimer? = null
     var isTimerRunning = false
@@ -28,7 +28,6 @@ class InactivityTimer {
                     timeLeftInMillis = millisUntilFinished
                     timerTickCallbacks.forEach { it(millisUntilFinished) }
                 }
-
                 override fun onFinish() {
                     isTimerRunning = false
                     timeLeftInMillis = totalTimeInMillis // Reset after finishing
@@ -53,6 +52,11 @@ class InactivityTimer {
         if (!isTimerRunning && timeLeftInMillis > 0) {
             startTimer()
         }
+    }
+    fun setNewTime(newTimeInMillis: Long) {
+        stopTimer()
+        totalTimeInMillis = newTimeInMillis
+        timeLeftInMillis = newTimeInMillis
     }
 
 

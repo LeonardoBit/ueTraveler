@@ -44,23 +44,41 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         scanButton = findViewById(R.id.btnScan)
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
 
-        inactivityTimer = InactivityTimer()
+        inactivityTimer = InactivityTimer(10000L)
 
         if (nfcAdapter == null) {
             Toast.makeText(this, "NFC not supported on this device", Toast.LENGTH_LONG).show()
             finish()
         }
+
+        val sequenceTriggers: Map<String, List<String>> = mapOf(
+            NFCTag.MSG1 to listOf(NFCTag.MSG1, NFCTag.MSG3, NFCTag.RRCSC,NFCTag.SMC)
+            // You can define more sequences here dynamically
+        )
+
+        val sequenceStatus: Map<String, String> = mapOf(
+            NFCTag.MSG1 to "Sequence Step 1",
+            NFCTag.MSG3 to "Sequence Step 2",
+            NFCTag.RRCSC to "Sequence Step 3",
+            NFCTag.SMC to "Sequence step 4"
+            // Status text for each step
+        )
+
+        openAlertDialog("Welcomed to the network","Greate to see you!!! " +
+                "To start your adventure please send Random Access Preamble - MSG1 to the gnb - baseband. " +
+                "To do this find first N-TAG and scan after pressing button start scanning.")
+
         updateTimerText(0)
+
+
 
         scanButton.setOnClickListener{
             if (!isScanning) {
                 enableNfcScanning()
                 inactivityTimer.stopTimer()
-                scanButton.text = "Stop scanning"
                 Toast.makeText(this, "Place your NFC tag near the device", Toast.LENGTH_SHORT).show()
             } else {
                 disableNfcScanning()
-                scanButton.text = "Start scanning"
                 Toast.makeText(this, "NFC scanning stopped", Toast.LENGTH_SHORT).show()
                 inactivityTimer.resumeTimer()
             }
@@ -77,16 +95,26 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         inactivityTimer.registerFinishedCallback {
             connectionLost()
         }
-        gameHandler = GameHandler(inactivityTimer)
+        gameHandler = GameHandler(
+            inactivityTimer,
+            sequenceTriggers,
+            sequenceStatus
+        ) { statusMessage ->
+            runOnUiThread {
+                setProcedureStatus(statusMessage)
+            }
+        }
         gameHandler.registerEventHandler(this)
     }
 
     private fun connectionLost() {
         timerTextView.setBackgroundColor(Color.RED)
         setProcedureStatus(ProcedureStatus.CONNECTION_LOST)
+        gameHandler.resetSequenceMode()
     }
 
     private fun enableNfcScanning() {
+        scanButton.text = "Stop scanning"
         val pendingIntent = PendingIntent.getActivity(
             this, 0, Intent(this, javaClass).apply {
                 addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -110,6 +138,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
 
     private fun disableNfcScanning() {
         if (nfcAdapter != null) {
+            scanButton.text = "Start scanning"
             try {
                 nfcAdapter?.disableForegroundDispatch(this)
             } catch (e: IllegalStateException) {
@@ -146,8 +175,6 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         transaction.replace(R.id.fragmentContainerView, frag)
         transaction.commit()
     }
-
-    //TO DO Fix timer pause when scanning is ON but not TAG is scanned and button pressed again
 
     private fun readFromTag(tag: Tag) {
         Log.d("MainActivity", "Scanning tag...")
@@ -197,7 +224,8 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
     }
 
     private fun executeActionBasedOnTag(data: String) {
-        gameHandler.handleTag(data)
+        val scannedTag = data.uppercase()
+        gameHandler.handleTag(scannedTag)
     }
 
     private fun setProcedureStatus(status: String){
@@ -246,6 +274,12 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             EGameEvent.PAUSE -> {
                 setProcedureStatus("Procedure paused")
             }
+
+            EGameEvent.MSG1 -> {
+                setProcedureStatus("Attach procedure started")
+                timerTextView.setBackgroundColor(Color.GREEN)
+            }
+
             EGameEvent.QUIZ -> {
                 setProcedureStatus("QUIZ")
                 showFragment(quizFragment)
