@@ -5,4 +5,5 @@ object ProcedureStatus {
     const val SCANNING = "Scanning"
     const val CONNECTION_LOST = "Connection lost"
     const val NOT_CONNECTED = "NOT_CONNECTED"
+    const val REATTACH = "REATTACH"
 }

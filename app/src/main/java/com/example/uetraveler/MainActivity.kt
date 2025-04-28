@@ -244,6 +244,28 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             .show()
     }
 
+    private fun openAlertDialogWithTwoAns(message: String,
+                                          titleYes: String,
+                                          messageYes: String
+                                          ){
+        AlertDialog.Builder(this)
+            .setTitle("Measurement as below. Send HO request?")
+            .setMessage(message)
+            .setPositiveButton("Yes") { dialog, _ ->
+                doSomethingDependOnAnswer(titleYes, messageYes)
+                dialog.dismiss()
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun doSomethingDependOnAnswer(title: String,
+                                          message: String) {
+        openAlertDialog(title,message)
+    }
+
     override fun handleGameEvent(event: EGameEvent) {
         when (event) {
             EGameEvent.START -> {
@@ -251,15 +273,30 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 timerTextView.setBackgroundColor(Color.GREEN)
                 Toast.makeText(this, "Timer started!", Toast.LENGTH_SHORT).show()
             }
-            EGameEvent.UE_LOST -> {
-                if (procInfoTextView.text == ProcedureStatus.CONNECTION_LOST){
-                    inactivityTimer.stopTimer()
-                    openAlertDialog("Connection lost ", "Please attach again by scanning initial connection tag")
-                }else{
-                    timerTextView.setBackgroundColor(Color.RED)
-                    setProcedureStatus(ProcedureStatus.CONNECTION_LOST)
-                    openAlertDialog("!!!UE lost!!!","ABNORMAL: UE LOST DUE TO PCI CONFLICT. Please reestablish connection (Scan Connetion Start TAG)")
+            //bug: Possible to scan LOST tag second time and game will move on, should be restricted only fot START TAG
+            EGameEvent.LOST -> {
+                    if (procInfoTextView.text == ProcedureStatus.CONNECTION_LOST) {
+                        inactivityTimer.stopTimer()
+                        openAlertDialog(
+                            "Connection lost ",
+                            "Please attach again by scanning initial connection tag"
+                        )
+                    } else {
+                        timerTextView.setBackgroundColor(Color.RED)
+                        gameHandler.setUeLostDone(true)
+                        setProcedureStatus(ProcedureStatus.CONNECTION_LOST)
+                        openAlertDialog(
+                            "!!!UE lost!!!",
+                            "ABNORMAL: UE LOST DUE TO PCI CONFLICT. Please reestablish connection (Scan Connetion Start TAG)"
+                        )
                 }
+            }
+            EGameEvent.HANDOVER -> {
+                setProcedureStatus("CONGRATULATIONS NOW you can succesfuly proceed with HO to do this you need" +
+                        "to send measurement, only one will be correct")
+                inactivityTimer.setNewTime(15000L)
+                gameHandler.setUeLostDone(false)
+                timerTextView.setBackgroundColor(Color.GREEN)
             }
             EGameEvent.RESET -> {
                 if (procInfoTextView.text == ProcedureStatus.CONNECTION_LOST){
@@ -274,9 +311,26 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             EGameEvent.PAUSE -> {
                 setProcedureStatus("Procedure paused")
             }
-
             EGameEvent.MSG1 -> {
                 setProcedureStatus("Attach procedure started")
+                timerTextView.setBackgroundColor(Color.GREEN)
+            }
+            EGameEvent.ATTACHFINISHED ->{
+                setProcedureStatus("Procedure DONE awesome")
+                openAlertDialog("Move Forward", "Find handover TAG here and there")
+                inactivityTimer.setNewTime(15000)
+            }
+            EGameEvent.MEAS1 -> {
+                openAlertDialogWithTwoAns("CELL NR 33. RSRP AWESOME, RSRQ FREAKING GOOD Send HO Request?","Congratulation. HO Complete ","Code to next step 1234")
+                timerTextView.setBackgroundColor(Color.GREEN)
+            }
+
+            EGameEvent.MEAS2 -> {
+                openAlertDialogWithTwoAns("CELL NR 34. RSRP SHIT, RSRQ FREAKING BAD Send HO Request?","NOT Congratulation ","REQUEST DENIED SO BAD. TRY next measurement")
+                timerTextView.setBackgroundColor(Color.GREEN)
+            }
+            EGameEvent.MEAS3 -> {
+                openAlertDialog("NOT THIS ONE","PROBÓJ DALEJ")
                 timerTextView.setBackgroundColor(Color.GREEN)
             }
 

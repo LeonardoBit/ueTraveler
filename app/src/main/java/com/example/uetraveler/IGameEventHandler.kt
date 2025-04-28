@@ -7,9 +7,14 @@ interface IGameEventHandler {
 enum class EGameEvent {
     INVALID,
     START,
-    UE_LOST,
+    LOST,
     RESET,
     PAUSE,
     QUIZ,
-    MSG1
+    MSG1,
+    HANDOVER,
+    ATTACHFINISHED,
+    MEAS1,
+    MEAS2,
+    MEAS3
 }

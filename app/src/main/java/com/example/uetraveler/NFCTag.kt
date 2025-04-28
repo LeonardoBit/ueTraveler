@@ -10,5 +10,9 @@ object NFCTag {
     const val MSG3 = "MSG3"
     const val RRCSC = "RRCSC"
     const val SMC = "SMC"
+    const val MEAS1 = "MEAS1"
+    const val MEAS2 = "MEAS2"
+    const val MEAS3 = "MEAS3"
+
 
 }

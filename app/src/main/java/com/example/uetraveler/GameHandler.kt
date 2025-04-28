@@ -1,7 +1,6 @@
 package com.example.uetraveler
 
 import android.util.Log
-import android.widget.Toast
 
 class GameHandler(private var inactivityTimer: InactivityTimer,
                   private val sequenceTriggers: Map<String, List<String>>,
@@ -12,7 +11,12 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
 
     private var currentStep = 0
     private var isSequenceMode = false
+    private var ueLostDone = false
     private var currentSequence: List<String>? = null
+
+    val sequenceFinishedEvent: Map<String, EGameEvent> = mapOf(
+        NFCTag.SMC to EGameEvent.ATTACHFINISHED
+    )
 
     fun registerEventHandler(handler: IGameEventHandler) {
         eventHandlers.add(handler)
@@ -25,7 +29,6 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
             handleSequenceTag(scannedTag)
             return
         }
-
         when (scannedTag) {
             NFCTag.START -> {
                 inactivityTimer.resetTimer()
@@ -42,7 +45,11 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
                 sendEvent(EGameEvent.RESET)
             }
             NFCTag.LOST -> {
-                sendEvent(EGameEvent.UE_LOST)
+                if (!ueLostDone){
+                sendEvent(EGameEvent.LOST)
+                }else{
+                    sendEvent(EGameEvent.HANDOVER)
+                }
             }
             NFCTag.QUIZ -> {
                 inactivityTimer.stopTimer()
@@ -52,6 +59,15 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
                 inactivityTimer.setNewTime(30000L)
                 inactivityTimer.startTimer()
                 sendEvent(EGameEvent.MSG1)
+            }
+            NFCTag.MEAS1 -> {
+                sendEvent(EGameEvent.MEAS1)
+            }
+            NFCTag.MEAS2 -> {
+                sendEvent(EGameEvent.MEAS2)
+            }
+            NFCTag.MEAS3 -> {
+                sendEvent(EGameEvent.MEAS3)
             }
             else -> {
                 Log.e("GameHandler", "Unrecognized NFC command: $scannedTag")
@@ -104,13 +120,13 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
                 isSequenceMode = false
                 currentSequence = null
                 currentStep = 0
+                sequenceFinishedEvent[scannedTag]?.let { sendEvent(it) }
             }
         } else {
             // Wrong tag scanned during sequence
             Log.e("GameHandler", "Wrong tag! Expected $expectedTag but scanned $scannedTag")
             sendStatusUpdate("Wrong tag! Expected: $expectedTag scanned: $scannedTag")
         }
-
         inactivityTimer.startTimer()
     }
 
@@ -118,6 +134,10 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
         currentStep = 0
         isSequenceMode = false
         currentSequence = null
+    }
+
+    fun setUeLostDone(ueLostStatus: Boolean){
+        ueLostDone = ueLostStatus
     }
 
     private fun sendEvent(event: EGameEvent) {
