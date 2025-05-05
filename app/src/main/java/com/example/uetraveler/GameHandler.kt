@@ -140,6 +140,10 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
         ueLostDone = ueLostStatus
     }
 
+    fun getUeLostDone(): Boolean {
+        return ueLostDone
+    }
+
     private fun sendEvent(event: EGameEvent) {
         eventHandlers.forEach { it.handleGameEvent(event) }
     }

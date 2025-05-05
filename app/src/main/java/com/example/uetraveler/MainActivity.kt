@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         scanButton = findViewById(R.id.btnScan)
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
 
-        inactivityTimer = InactivityTimer(10000L)
+        inactivityTimer = InactivityTimer(20000L)
 
         if (nfcAdapter == null) {
             Toast.makeText(this, "NFC not supported on this device", Toast.LENGTH_LONG).show()
@@ -56,11 +56,12 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             // You can define more sequences here dynamically
         )
 
+        //this should be a map with several sequences . To make it possible to handle different
         val sequenceStatus: Map<String, String> = mapOf(
-            NFCTag.MSG1 to "Sequence Step 1",
-            NFCTag.MSG3 to "Sequence Step 2",
-            NFCTag.RRCSC to "Sequence Step 3",
-            NFCTag.SMC to "Sequence step 4"
+            NFCTag.MSG1 to "Message 1 successfully sent, GNB responded with MSG2",
+            NFCTag.MSG3 to "Message 3 successfully sent, GNB using PUSCH responded with RRCSetup message",
+            NFCTag.RRCSC to "RRC setup complete sent, Gnb responded with Security mode command",
+            NFCTag.SMC to "Security mode complete sent. Congratulations attach successfully complete"
             // Status text for each step
         )
 
@@ -269,11 +270,13 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
     override fun handleGameEvent(event: EGameEvent) {
         when (event) {
             EGameEvent.START -> {
-                setProcedureStatus(ProcedureStatus.CONNECTED)
-                timerTextView.setBackgroundColor(Color.GREEN)
-                Toast.makeText(this, "Timer started!", Toast.LENGTH_SHORT).show()
+                if (procInfoTextView.text == ProcedureStatus.CONNECTION_LOST){
+                    setProcedureStatus(ProcedureStatus.CONNECTED)
+                    timerTextView.setBackgroundColor(Color.GREEN)
+                    Toast.makeText(this, "Well done you have connected again", Toast.LENGTH_SHORT).show()
+                }
             }
-            //bug: Possible to scan LOST tag second time and game will move on, should be restricted only fot START TAG
+            //bug: Possible to scan LOST tag second time and game will move on, should be restricted only for START TAG
             EGameEvent.LOST -> {
                     if (procInfoTextView.text == ProcedureStatus.CONNECTION_LOST) {
                         inactivityTimer.stopTimer()
@@ -287,16 +290,26 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                         setProcedureStatus(ProcedureStatus.CONNECTION_LOST)
                         openAlertDialog(
                             "!!!UE lost!!!",
-                            "ABNORMAL: UE LOST DUE TO PCI CONFLICT. Please reestablish connection (Scan Connetion Start TAG)"
+                            "ABNORMAL: UE LOST DUE TO PCI CONFLICT. Please reestablish connection (Scan Connection Start TAG)"
                         )
                 }
             }
             EGameEvent.HANDOVER -> {
-                setProcedureStatus("CONGRATULATIONS NOW you can succesfuly proceed with HO to do this you need" +
-                        "to send measurement, only one will be correct")
-                inactivityTimer.setNewTime(15000L)
-                gameHandler.setUeLostDone(false)
-                timerTextView.setBackgroundColor(Color.GREEN)
+                if(procInfoTextView.text == ProcedureStatus.CONNECTION_LOST) {
+                    inactivityTimer.stopTimer()
+                    openAlertDialog(
+                        "Connection lost ",
+                        "Please attach again by scanning initial connection tag"
+                    )
+                }else{
+                    setProcedureStatus(
+                        "CONGRATULATIONS NOW you can successfully proceed with HO to do this you need" +
+                                "to send measurement, only one will be correct"
+                    )
+                    inactivityTimer.setNewTime(15000L)
+                    gameHandler.setUeLostDone(false)
+                    timerTextView.setBackgroundColor(Color.GREEN)
+                }
             }
             EGameEvent.RESET -> {
                 if (procInfoTextView.text == ProcedureStatus.CONNECTION_LOST){
@@ -322,6 +335,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             }
             EGameEvent.MEAS1 -> {
                 openAlertDialogWithTwoAns("CELL NR 33. RSRP AWESOME, RSRQ FREAKING GOOD Send HO Request?","Congratulation. HO Complete ","Code to next step 1234")
+                setProcedureStatus("Handover completed. Time to do some CA !!!!")
                 timerTextView.setBackgroundColor(Color.GREEN)
             }
 
