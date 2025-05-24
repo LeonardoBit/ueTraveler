@@ -1,5 +1,110 @@
 <resources>
     <string name="app_name">ueTraveler</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="welcome_message_title">
+        Welcomed to the network
+    </string>
+    <string name="welcome_message1">During this adventure you will be able to experience three more procedures.
+        Attach, Handover and Carrier Aggregation.
+    </string>
+
+    <string name="welcome_message2_title">
+        Attach procedure
+    </string>
+
+    <string name="welcome_message2">Good job with unlocking needed cells!
+        Now you can connect to one of them. To do that you need to choose suitable cell and attach.
+        Which one is suitable? That one you will be CAPABLE to handle as a UE.
+    </string>
+
+    <string name="welcome_message3_title">Communication with network
+    </string>
+
+    <string name="welcome_message3">You will be communicating with network by scanning NFC tags in different places.
+        To start scanning press "Start scanning".
+        Scanning will stop automatically after tag will be scanned.
+    </string>
+
+    <string name="welcome_message4_title">Capabilities
+    </string>
+    <string name="welcome_message4">First of all you need to know what is your capabilities. To know that scan first tag on YOUR desktop.
+        Good luck with further adventures and procedures!
+    </string>
+
+    <string name="Capabilities">
+        Frequencies:\n
+        Technology:GSM / HSPA / LTE / 5G\n
+        \n
+        2G Bands:\n
+        GSM - 850 / 900 / 1800 / 1900 - SIM 1 and SIM 2\n
+        \n
+        3G Bands:\n
+        HSDPA - 850 / 900 / 1900 / 2100\n
+        \n
+        4G Bands:\n
+        LTE Band - 1(2100), 3(1800), 5(850), 7(2600), 8(900),34(2000), 38(2600), 39(1900), 40(2300), 41(2500)\n
+        \n
+        5G Bands:\n
+        5G Band - 41(2500MHz, arfcn 499200-537996), 78(3500MHz, arfcn 620000-653332)\n
+        \n
+        Network Speed\n
+        HSPA 42.2/5.76 Mbps, LTE-A, 5G (2+ Gbps DL)
+    </string>
+
+    <string name="lock_unlock_barred">Hello blank fragment</string>
+    <string name="lock_unlock_bad_caps">Hello blank fragment</string>
+    <string name="attach_proc_msg1">Hello blank fragment</string>
+    <string name="attach_proc_msg3">Hello blank fragment</string>
+    <string name="attach_proc_msg_rrcsc">Hello blank fragment</string>
+    <string name="attach_proc_msg_smc_attach_complete">Hello blank fragment</string>
+
+    <string name="cell_found_title">Neighbor Cell Detected</string>
+
+    <string name="good_cell1good_message">RSRP = -67 dBm
+                RSRQ = -8 dB
+                Do you want to perform a Handover to this cell?
+    </string>
+
+    <string name="good_cell1good_message_if_yes_title">Handover Successful!</string>
+
+    <string name="good_cell1good_message_if_yes">Your user (?) has just started watching YouTube – high data demand detected!
+                Quickly find the locker number XX, open it and perform the Carrier Aggregation procedure to boost capacity and ensure smooth streaming.
+    </string>
+
+    <string name="good_cell2_pcifail_message">RSRP = -67 dBm
+                RSRQ = -8 dB
+                Do you want to perform a Handover to this cell?
+    </string>
+    <string name="good_cell2_pcifail_title_if_yes">Handover Failed – PCI Conflict Detected</string>
+    <string name="good_cell2_pcifail_message_if_yes">
+        A PCI conflict in 5G NR occurs when two nearby cells are assigned the same Physical Cell Identity,
+        causing interference or confusion for user equipment during cell identification and handover. Connection was lost.
+        Please re-attach to the network and try again. To do this scan re-attach tag in starting room.
+    </string>
+    <string name="cell_bad_ho_failed_title">Handover failed!</string>
+    <string name="cell3bad">RSRP = -80 dBm
+                RSRQ = -9 dB
+                Do you want to perform a Handover to this cell?
+    </string>
+
+    <string name="cell3bad_answer_yes">
+        Target cell rejected due to insufficient signal quality. Look for another cell with better signal.
+    </string>
+
+    <string name="cell4bad">RSRP = -85 dBm
+                RSRQ = -6 dB
+                Do you want to perform a Handover to this cell?
+    </string>
+
+    <string name="cell4bad_answer_yes">
+        Target cell rejected due to insufficient signal quality. Look for another cell with better signal.
+    </string>
+
+    <string name="ca_done_congratulation_message">
+        Congratulation you have completed all necessary procedures. Throughput is on maximum level.
+        User is watching video with maximum quality and stable connection.
+        Last letter is "E"
+    </string>
+
+
 </resources>

@@ -22,73 +22,97 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
         eventHandlers.add(handler)
     }
 
-    fun handleTag(tag: String) {
+    fun handleTag(tag: String,isConnected: Boolean) {
         val scannedTag = tag.uppercase()
-
-        if (isSequenceMode) {
-            handleSequenceTag(scannedTag)
-            return
+        if (isConnected) {
+            if (isSequenceMode) {
+                handleSequenceTag(scannedTag)
+                return
+            }
         }
         when (scannedTag) {
             NFCTag.START -> {
-                inactivityTimer.resetTimer()
-                inactivityTimer.startTimer()
+                //inactivityTimer.resetTimer()
+                //inactivityTimer.startTimer()
                 sendEvent(EGameEvent.START)
             }
+
             NFCTag.PAUSE -> {
-                inactivityTimer.stopTimer()
+                //inactivityTimer.stopTimer()
                 sendEvent(EGameEvent.PAUSE)
             }
+
             NFCTag.RESET -> {
-                inactivityTimer.resetTimer()
-                inactivityTimer.startTimer()
+                //inactivityTimer.resetTimer()
+                //inactivityTimer.startTimer()
                 sendEvent(EGameEvent.RESET)
             }
+
             NFCTag.LOST -> {
-                if (!ueLostDone){
-                sendEvent(EGameEvent.LOST)
-                }else{
+                if (!ueLostDone) {
+                    sendEvent(EGameEvent.LOST)
+                } else {
                     sendEvent(EGameEvent.HANDOVER)
                 }
             }
-            NFCTag.QUIZ -> {
-                inactivityTimer.stopTimer()
-                sendEvent(EGameEvent.QUIZ)
-            }
+
             NFCTag.MSG1 -> {
-                inactivityTimer.setNewTime(30000L)
-                inactivityTimer.startTimer()
+                //inactivityTimer.setNewTime(30000L)
+                //inactivityTimer.startTimer()
                 sendEvent(EGameEvent.MSG1)
             }
+
+            NFCTag.CELL2 -> {
+                sendEvent(EGameEvent.CELL2)
+            }
+
+            NFCTag.CELL3 -> {
+                sendEvent(EGameEvent.CELL3)
+            }
+
             NFCTag.MEAS1 -> {
                 sendEvent(EGameEvent.MEAS1)
             }
+
             NFCTag.MEAS2 -> {
                 sendEvent(EGameEvent.MEAS2)
             }
+
             NFCTag.MEAS3 -> {
                 sendEvent(EGameEvent.MEAS3)
             }
+
+            NFCTag.PCIFAIL -> {
+                sendEvent(EGameEvent.PCIFAIL)
+            }
+
+            NFCTag.CA -> {
+                sendEvent(EGameEvent.CA)
+            }
+
+            NFCTag.CAPS -> {
+                sendEvent(EGameEvent.CAPS)
+            }
+
             else -> {
                 Log.e("GameHandler", "Unrecognized NFC command: $scannedTag")
             }
         }
+        if (isConnected) {
+            if (isSequenceMode && currentSequence != null) {
+                handleSequenceTag(scannedTag)
+                return
+            }
 
-
-        if (isSequenceMode && currentSequence != null) {
-            handleSequenceTag(scannedTag)
-            return
-        }
-
-        if (sequenceTriggers.containsKey(scannedTag)) {
-            currentSequence = sequenceTriggers[scannedTag]
-            isSequenceMode = true
-            currentStep = 0
-            Log.d("GameHandler", "Sequence started with $scannedTag")
-            handleSequenceTag(scannedTag)
+            if (sequenceTriggers.containsKey(scannedTag)) {
+                currentSequence = sequenceTriggers[scannedTag]
+                isSequenceMode = true
+                currentStep = 0
+                Log.d("GameHandler", "Sequence started with $scannedTag")
+                handleSequenceTag(scannedTag)
+            }
         }
     }
-
     private fun handleSequenceTag(scannedTag: String) {
         val sequence = currentSequence ?: return
 
@@ -127,7 +151,7 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
             Log.e("GameHandler", "Wrong tag! Expected $expectedTag but scanned $scannedTag")
             sendStatusUpdate("Wrong tag! Expected: $expectedTag scanned: $scannedTag")
         }
-        inactivityTimer.startTimer()
+        //inactivityTimer.startTimer()
     }
 
     fun resetSequenceMode(){

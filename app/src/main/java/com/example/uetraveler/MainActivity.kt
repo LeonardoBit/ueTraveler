@@ -25,6 +25,8 @@ import com.example.uetraveler.fragments.QuizFragment
 class MainActivity : AppCompatActivity(), IGameEventHandler {
     private lateinit var timerTextView: TextView
     private lateinit var procInfoTextView: TextView
+    private lateinit var messageTextView: TextView
+    private lateinit var signalQualityTextView: TextView
     private lateinit var scanButton: Button
 
     private lateinit var inactivityTimer: InactivityTimer
@@ -35,16 +37,19 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
 
     private var nfcAdapter: NfcAdapter? = null
     private var isScanning = false
+    private var isConnected = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         timerTextView = findViewById(R.id.tvTimer)
         procInfoTextView = findViewById(R.id.procInfoTextView)
+        messageTextView = findViewById(R.id.messageTextView)
+        signalQualityTextView = findViewById(R.id.signalQualityTextView)
         scanButton = findViewById(R.id.btnScan)
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
 
-        inactivityTimer = InactivityTimer(20000L)
+        inactivityTimer = InactivityTimer(600000L)
 
         if (nfcAdapter == null) {
             Toast.makeText(this, "NFC not supported on this device", Toast.LENGTH_LONG).show()
@@ -65,9 +70,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             // Status text for each step
         )
 
-        openAlertDialog("Welcomed to the network","Greate to see you!!! " +
-                "To start your adventure please send Random Access Preamble - MSG1 to the gnb - baseband. " +
-                "To do this find first N-TAG and scan after pressing button start scanning.")
+        startMessage()
 
         updateTimerText(0)
 
@@ -76,18 +79,18 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         scanButton.setOnClickListener{
             if (!isScanning) {
                 enableNfcScanning()
-                inactivityTimer.stopTimer()
+                //inactivityTimer.stopTimer()
                 Toast.makeText(this, "Place your NFC tag near the device", Toast.LENGTH_SHORT).show()
             } else {
                 disableNfcScanning()
                 Toast.makeText(this, "NFC scanning stopped", Toast.LENGTH_SHORT).show()
-                inactivityTimer.resumeTimer()
+                //inactivityTimer.resumeTimer()
             }
             isScanning = !isScanning
         }
 
-        infoFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as InfoFragment
-        quizFragment = QuizFragment({ correct -> quizCallback(correct) })
+        //infoFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerView) as InfoFragment
+        //quizFragment = QuizFragment({ correct -> quizCallback(correct) })
 
         inactivityTimer.registerTickCallback { millisLeft ->
             updateTimerText((millisLeft / 1000).toInt())
@@ -102,7 +105,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             sequenceStatus
         ) { statusMessage ->
             runOnUiThread {
-                setProcedureStatus(statusMessage)
+                setGameMessage(statusMessage)
             }
         }
         gameHandler.registerEventHandler(this)
@@ -165,7 +168,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         }
     }
 
-    private fun quizCallback(correct: Boolean) {
+    /*private fun quizCallback(correct: Boolean) {
         val message = if (correct) "Correct!" else "Wrong!"
         infoFragment.setInfoText(message)
         showFragment(infoFragment)
@@ -175,7 +178,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.fragmentContainerView, frag)
         transaction.commit()
-    }
+    }*/
 
     private fun readFromTag(tag: Tag) {
         Log.d("MainActivity", "Scanning tag...")
@@ -206,7 +209,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 ).trim()
 
                 runOnUiThread {
-                    executeActionBasedOnTag(text)
+                    executeActionBasedOnTag(text, isConnected)
                     isScanning = false
                 }
             } else {
@@ -224,36 +227,82 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         }
     }
 
-    private fun executeActionBasedOnTag(data: String) {
+    private fun executeActionBasedOnTag(data: String,isConnected: Boolean) {
         val scannedTag = data.uppercase()
-        gameHandler.handleTag(scannedTag)
+        gameHandler.handleTag(scannedTag,isConnected)
     }
 
     private fun setProcedureStatus(status: String){
         procInfoTextView.text = status
     }
 
+    private fun setGameMessage(status: String){
+        messageTextView.text = status
+    }
+
+    private fun setSignalQualityStatus(status: String){
+        signalQualityTextView.text = status
+    }
+
     private fun updateTimerText(seconds: Int) {
         timerTextView.text = "$seconds s"
     }
 
+    private fun startMessage() {
+        openAlertDialogStartMessage(
+            getString(R.string.welcome_message_title),
+            getString(R.string.welcome_message1)
+        ) {
+            openAlertDialogStartMessage(
+                getString(R.string.welcome_message2_title),
+                getString(R.string.welcome_message2)
+            ) {
+                openAlertDialogStartMessage(
+                    getString(R.string.welcome_message3_title),
+                    getString(R.string.welcome_message3)
+                ) {
+                    openAlertDialogStartMessage(
+                        getString(R.string.welcome_message4_title),
+                        getString(R.string.welcome_message4)
+                    )
+                }
+            }
+        }
+    }
     private fun openAlertDialog(title: String, message: String){
         AlertDialog.Builder(this)
             .setTitle(title)
             .setMessage(message)
+            .setCancelable(false)
             .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
             .show()
     }
 
-    private fun openAlertDialogWithTwoAns(message: String,
+    private fun openAlertDialogStartMessage(title: String, message: String, onDismiss: (() -> Unit)? = null) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
+        builder.setMessage(message)
+        builder.setPositiveButton("Ok") { dialog, _ ->
+            dialog.dismiss()
+            onDismiss?.invoke()  // Run callback after dismissal
+        }
+
+        val dialog = builder.create()
+        dialog.setCancelable(false)
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.show()
+    }
+
+    private fun openAlertDialogWithTwoAns(title: String,
+                                          message: String,
                                           titleYes: String,
                                           messageYes: String
                                           ){
         AlertDialog.Builder(this)
-            .setTitle("Measurement as below. Send HO request?")
+            .setTitle(title)
             .setMessage(message)
             .setPositiveButton("Yes") { dialog, _ ->
-                doSomethingDependOnAnswer(titleYes, messageYes)
+                doSomethingOnPositiveAnswer(titleYes, messageYes)
                 dialog.dismiss()
             }
             .setNegativeButton("No") { dialog, _ ->
@@ -262,106 +311,146 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             .show()
     }
 
-    private fun doSomethingDependOnAnswer(title: String,
+    private fun openAlertDialogWithTwoAnsPCIFAIL(title: String,
+                                          message: String,
+                                          titleYes: String,
+                                          messageYes: String
+    ){
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("Yes") { dialog, _ ->
+                setGameMessage(titleYes+messageYes)
+                setProcedureStatus(ProcedureStatus.CONNECTION_LOST)
+                timerTextView.setBackgroundColor(Color.RED)
+                setSignalQualityStatus("RSRP X\n RSRQ X")
+                dialog.dismiss()
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun doSomethingOnPositiveAnswer(title: String,
                                           message: String) {
-        openAlertDialog(title,message)
+        setGameMessage(title+message)
     }
 
     override fun handleGameEvent(event: EGameEvent) {
-        when (event) {
-            EGameEvent.START -> {
-                if (procInfoTextView.text == ProcedureStatus.CONNECTION_LOST){
+        if(event != EGameEvent.START && procInfoTextView.text == ProcedureStatus.CONNECTION_LOST) {
+            if (procInfoTextView.text == ProcedureStatus.CONNECTION_LOST) {
+                openAlertDialog(
+                    "Connection lost ",
+                    "Please attach again by scanning initial connection tag"
+                )
+            }
+        }else {
+            when (event) {
+                EGameEvent.START ->{
                     setProcedureStatus(ProcedureStatus.CONNECTED)
                     timerTextView.setBackgroundColor(Color.GREEN)
-                    Toast.makeText(this, "Well done you have connected again", Toast.LENGTH_SHORT).show()
+                    setGameMessage("\"Well done you have connected again\"")
+                    setSignalQualityStatus("RSRP -90dB\n RSRQ -50dB")
+                    isConnected = true
                 }
-            }
-            //bug: Possible to scan LOST tag second time and game will move on, should be restricted only for START TAG
-            EGameEvent.LOST -> {
-                    if (procInfoTextView.text == ProcedureStatus.CONNECTION_LOST) {
-                        inactivityTimer.stopTimer()
-                        openAlertDialog(
-                            "Connection lost ",
-                            "Please attach again by scanning initial connection tag"
+
+                EGameEvent.PCIFAIL -> {
+                        openAlertDialogWithTwoAnsPCIFAIL(
+                            getString(R.string.cell_found_title),
+                            getString(R.string.good_cell2_pcifail_message),
+                            getString(R.string.good_cell2_pcifail_title_if_yes),
+                            getString(R.string.good_cell2_pcifail_message_if_yes)
                         )
-                    } else {
-                        timerTextView.setBackgroundColor(Color.RED)
-                        gameHandler.setUeLostDone(true)
-                        setProcedureStatus(ProcedureStatus.CONNECTION_LOST)
-                        openAlertDialog(
-                            "!!!UE lost!!!",
-                            "ABNORMAL: UE LOST DUE TO PCI CONFLICT. Please reestablish connection (Scan Connection Start TAG)"
-                        )
+                    isConnected = false
                 }
-            }
-            EGameEvent.HANDOVER -> {
-                if(procInfoTextView.text == ProcedureStatus.CONNECTION_LOST) {
-                    inactivityTimer.stopTimer()
-                    openAlertDialog(
-                        "Connection lost ",
-                        "Please attach again by scanning initial connection tag"
-                    )
-                }else{
-                    setProcedureStatus(
-                        "CONGRATULATIONS NOW you can successfully proceed with HO to do this you need" +
-                                "to send measurement, only one will be correct"
-                    )
-                    inactivityTimer.setNewTime(15000L)
-                    gameHandler.setUeLostDone(false)
-                    timerTextView.setBackgroundColor(Color.GREEN)
+
+                EGameEvent.RESET -> {
+                        setProcedureStatus(ProcedureStatus.CONNECTED)
+                        timerTextView.setBackgroundColor(Color.GREEN)
+                        Toast.makeText(this, "Timer reset!", Toast.LENGTH_SHORT).show()
                 }
-            }
-            EGameEvent.RESET -> {
-                if (procInfoTextView.text == ProcedureStatus.CONNECTION_LOST){
-                    inactivityTimer.stopTimer()
-                    openAlertDialog("Connection lost ", "Please attach again by scanning initial connection tag")
-                }else {
+
+                EGameEvent.PAUSE -> {
+                    setProcedureStatus("Procedure paused")
+                }
+
+                EGameEvent.MSG1 -> {
+                        setGameMessage("Attach procedure started")
+                        inactivityTimer.startTimer()
+                        timerTextView.setBackgroundColor(Color.GREEN)
+                }
+
+                EGameEvent.ATTACHFINISHED -> {
+                    setGameMessage("Procedure DONE awesome.\"Attach complete\", \"Look under the table to for additional information. \"")
                     setProcedureStatus(ProcedureStatus.CONNECTED)
-                    timerTextView.setBackgroundColor(Color.GREEN)
-                    Toast.makeText(this, "Timer reset!", Toast.LENGTH_SHORT).show()
+                    setSignalQualityStatus("RSRP -90dB\n RSRQ -50dB")
+                    isConnected = true
+                    inactivityTimer.resetTimer()
+                    inactivityTimer.startTimer()
                 }
-            }
-            EGameEvent.PAUSE -> {
-                setProcedureStatus("Procedure paused")
-            }
-            EGameEvent.MSG1 -> {
-                setProcedureStatus("Attach procedure started")
-                timerTextView.setBackgroundColor(Color.GREEN)
-            }
-            EGameEvent.ATTACHFINISHED ->{
-                setProcedureStatus("Procedure DONE awesome")
-                openAlertDialog("Move Forward", "Find handover TAG here and there")
-                inactivityTimer.setNewTime(15000)
-            }
-            EGameEvent.MEAS1 -> {
-                openAlertDialogWithTwoAns("CELL NR 33. RSRP AWESOME, RSRQ FREAKING GOOD Send HO Request?","Congratulation. HO Complete ","Code to next step 1234")
-                setProcedureStatus("Handover completed. Time to do some CA !!!!")
-                timerTextView.setBackgroundColor(Color.GREEN)
-            }
 
-            EGameEvent.MEAS2 -> {
-                openAlertDialogWithTwoAns("CELL NR 34. RSRP SHIT, RSRQ FREAKING BAD Send HO Request?","NOT Congratulation ","REQUEST DENIED SO BAD. TRY next measurement")
-                timerTextView.setBackgroundColor(Color.GREEN)
-            }
-            EGameEvent.MEAS3 -> {
-                openAlertDialog("NOT THIS ONE","PROBÓJ DALEJ")
-                timerTextView.setBackgroundColor(Color.GREEN)
-            }
+                EGameEvent.CELL2 -> {
+                        openAlertDialogWithTwoAns(
+                            "Cell configuration",
+                            "11101001001. Chose for attach?",
+                            "Attach not started",
+                            "Unfortunately capabilities is not enough"
+                        )
+                }
 
-            EGameEvent.QUIZ -> {
-                setProcedureStatus("QUIZ")
-                showFragment(quizFragment)
-                Handler(Looper.getMainLooper()).post {
-                    quizFragment.setQuestion(
-                        "How much is 2+2?",
-                        listOf("3", "4", "2"),
-                        1
+                EGameEvent.CELL3 -> {
+                        openAlertDialogWithTwoAns(
+                            "Cell configuration",
+                            "Cell configuration 22222222",
+                            "Attach not started",
+                            "bad caps"
+                        )
+                }
+
+                EGameEvent.MEAS1 -> {
+                    openAlertDialogWithTwoAns(
+                        getString(R.string.cell_found_title),
+                        getString(R.string.good_cell1good_message),
+                        getString(R.string.good_cell1good_message_if_yes_title),
+                        getString(R.string.good_cell1good_message_if_yes)
                     )
+                    //setProcedureStatus("Handover completed. Time to do some CA !!!!")
+                    inactivityTimer.startTimer()
+                    timerTextView.setBackgroundColor(Color.GREEN)
                 }
 
-            }
-            else -> {
-                Log.d("MainActivity", "Unhandled game event: $event")
+                EGameEvent.MEAS2 -> {
+                    openAlertDialogWithTwoAns(
+                        getString(R.string.cell_found_title),
+                        getString(R.string.cell3bad),
+                        getString(R.string.cell_bad_ho_failed_title),
+                        getString(R.string.cell3bad_answer_yes)
+                    )
+                    timerTextView.setBackgroundColor(Color.GREEN)
+                }
+
+                EGameEvent.MEAS3 -> {
+                    openAlertDialogWithTwoAns(
+                        getString(R.string.cell_found_title),
+                        getString(R.string.cell4bad),
+                        getString(R.string.cell_bad_ho_failed_title),
+                        getString(R.string.cell4bad_answer_yes)
+                    )
+                    timerTextView.setBackgroundColor(Color.GREEN)
+                }
+
+                EGameEvent.CA -> {
+                    setGameMessage(getString(R.string.ca_done_congratulation_message))
+                    timerTextView.setBackgroundColor(Color.GREEN)
+                }
+
+                EGameEvent.CAPS -> {
+                    openAlertDialog("Capabilities", getString(R.string.Capabilities))
+                }
+                else -> {
+                    Log.d("MainActivity", "Unhandled game event: $event")
+                }
             }
         }
         scanButton.text = "Start scanning"

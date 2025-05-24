@@ -5,21 +5,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/cardview_light_background"
     tools:context=".MainActivity"
     android:id="@+id/rootLayout">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:weightSum="6"
         android:layout_weight="1"
-        >
+        android:gravity="center"
+        android:orientation="horizontal">
+
         <TextView
             android:id="@+id/procInfoTextView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="4"
             android:background="@android:color/holo_green_light"
             android:gravity="center"
@@ -27,21 +27,41 @@
             android:textSize="30sp" />
 
         <TextView
-            android:id="@+id/tvTimer"
+            android:id="@+id/signalQualityTextView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
+            android:layout_height="match_parent"
+            android:layout_weight="4"
+            android:background="@android:color/holo_green_light"
             android:gravity="center"
-            android:text="Hello World!"
+            android:text="Signal quality"
             android:textSize="30sp" />
     </LinearLayout>
-
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragmentContainerView"
-        android:name="com.example.uetraveler.fragments.InfoFragment"
+    <TextView
+        android:id="@+id/tvTimer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="3"/>
+        android:layout_weight="0.5"
+        android:background="@android:color/holo_green_light"
+        android:gravity="center"
+        android:text="procedure timer"
+        android:textSize="30sp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_weight="4"
+        >
+
+        <TextView
+            android:id="@+id/messageTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:gravity="center"
+            android:text=""
+            android:textSize="30sp" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/btnScan"
@@ -49,6 +69,5 @@
         android:layout_height="wrap_content"
         android:text="Start scanning"
         android:layout_weight="1"/>
-
 </LinearLayout>
 

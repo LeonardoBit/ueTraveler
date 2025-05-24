@@ -5,16 +5,20 @@ interface IGameEventHandler {
 }
 
 enum class EGameEvent {
-    INVALID,
     START,
-    LOST,
     RESET,
     PAUSE,
     QUIZ,
     MSG1,
     HANDOVER,
+    CA,
+    CAPS,
+    LOST,
+    PCIFAIL,
     ATTACHFINISHED,
     MEAS1,
     MEAS2,
-    MEAS3
+    MEAS3,
+    CELL2,
+    CELL3
 }
