@@ -63,10 +63,10 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
 
         //this should be a map with several sequences . To make it possible to handle different
         val sequenceStatus: Map<String, String> = mapOf(
-            NFCTag.MSG1 to "Message 1 successfully sent, GNB responded with MSG2",
-            NFCTag.MSG3 to "Message 3 successfully sent, GNB using PUSCH responded with RRCSetup message",
-            NFCTag.RRCSC to "RRC setup complete sent, Gnb responded with Security mode command",
-            NFCTag.SMC to "Security mode complete sent. Congratulations attach successfully complete"
+            NFCTag.MSG1 to getString(R.string.attach_proc_msg1),
+            NFCTag.MSG3 to getString(R.string.attach_proc_msg3),
+            NFCTag.RRCSC to getString(R.string.attach_proc_msg_rrcsc),
+            NFCTag.SMC to getString(R.string.attach_proc_msg_smc_attach_complete),
             // Status text for each step
         )
 
@@ -269,6 +269,44 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             }
         }
     }
+    private fun congratsMessage() {
+        openAlertDialogStartMessage(
+            getString(R.string.ca_done_congratulation_title),
+            getString(R.string.ca_done_congratulation_message)
+        ) {
+            openAlertDialogStartMessage(
+                getString(R.string.ca_done_congratulation_title),
+                getString(R.string.ca_done_congratulation_message)
+            ) {
+                openAlertDialogStartMessage(
+                    getString(R.string.ca_done_congratulation_title),
+                    getString(R.string.ca_done_congratulation_message)
+                ) {
+                    openAlertDialogStartMessage(
+                        getString(R.string.ca_done_congratulation_title),
+                        getString(R.string.ca_done_congratulation_message)
+                    ){
+                        openAlertDialogStartMessage(
+                            getString(R.string.ca_done_congratulation_title),
+                            getString(R.string.ca_done_congratulation_message)
+                        ){
+                            openAlertDialogStartMessage(
+                                getString(R.string.ca_done_congratulation_title),
+                                getString(R.string.ca_done_congratulation_message)
+                            ){
+                                openAlertDialogStartMessage(
+                                    getString(R.string.ca_done_congratulation_title),
+                                    getString(R.string.ca_done_congratulation_message)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
     private fun openAlertDialog(title: String, message: String){
         AlertDialog.Builder(this)
             .setTitle(title)
@@ -342,7 +380,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             if (procInfoTextView.text == ProcedureStatus.CONNECTION_LOST) {
                 openAlertDialog(
                     "Connection lost ",
-                    "Please attach again by scanning initial connection tag"
+                    "Please attach again. To do this return to the initial room and scan re-attach tag on the door!"
                 )
             }
         }else {
@@ -350,7 +388,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 EGameEvent.START ->{
                     setProcedureStatus(ProcedureStatus.CONNECTED)
                     timerTextView.setBackgroundColor(Color.GREEN)
-                    setGameMessage("\"Well done you have connected again\"")
+                    setGameMessage(getString(R.string.re_attach_message),)
                     setSignalQualityStatus("RSRP -90dB\n RSRQ -50dB")
                     isConnected = true
                 }
@@ -382,7 +420,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 }
 
                 EGameEvent.ATTACHFINISHED -> {
-                    setGameMessage("Procedure DONE awesome.\"Attach complete\", \"Look under the table to for additional information. \"")
+                    //setGameMessage("Procedure DONE awesome.\"Attach complete\", \"Look under the table to for additional information. \"")
                     setProcedureStatus(ProcedureStatus.CONNECTED)
                     setSignalQualityStatus("RSRP -90dB\n RSRQ -50dB")
                     isConnected = true
@@ -442,7 +480,10 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
 
                 EGameEvent.CA -> {
                     setGameMessage(getString(R.string.ca_done_congratulation_message))
+                    congratsMessage()
                     timerTextView.setBackgroundColor(Color.GREEN)
+                    procInfoTextView.text = "WELL"
+                    signalQualityTextView.text = "DONE"
                 }
 
                 EGameEvent.CAPS -> {

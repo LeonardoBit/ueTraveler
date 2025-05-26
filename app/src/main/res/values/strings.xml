@@ -53,10 +53,79 @@
 
     <string name="lock_unlock_barred">Hello blank fragment</string>
     <string name="lock_unlock_bad_caps">Hello blank fragment</string>
-    <string name="attach_proc_msg1">Hello blank fragment</string>
-    <string name="attach_proc_msg3">Hello blank fragment</string>
-    <string name="attach_proc_msg_rrcsc">Hello blank fragment</string>
-    <string name="attach_proc_msg_smc_attach_complete">Hello blank fragment</string>
+    <string name="attach_proc_msg1">
+        PRACH: MSG1 \n
+        ---------------------------------------->\n
+        Successfully sent\n
+        \n
+        PDSCH: MSG2\n
+        &lt;----------------------------------------\n
+        Received from GNB\n
+        \n
+        BB part of GNB is waiting for the next message\n
+        ????-------------------------------------->\n
+        \n
+        Info:
+        \n
+        MSG1 is the preamble sent by the UE on PRACH to request uplink sync and start the RA procedure.\n
+        \n
+        MSG2 is the Random Access Response sent by the gNB, providing timing advance, uplink grant, and temporary ID to the UE.
+
+    </string>
+
+    <string name="attach_proc_msg3">
+        PUSCH:MSG 3 (RRCSetupRequest) \n
+        ---------------------------------------->\n
+        Successfully sent\n
+        \n
+        PUSCH: RRCSetup\n
+        &lt;----------------------------------------\n
+        Received from GNB\n
+        \n
+        Respond to the GNB using PUSCH\n
+        ????-------------------------------------->\n
+        \n
+        Info:
+        \n
+        MSG3 is the message sent after the Random Access Response, carrying UE identity or scheduling info.\n
+        \n
+        PUSCH: RRCSetup is the message sent by the gNB on PUSCH, delivering RRC parameters to establish the UE connection.
+    </string>
+
+    <string name="attach_proc_msg_rrcsc">
+        PUSCH:RRCSetupComplete  \n
+        ---------------------------------------->\n
+        Successfully sent\n
+        \n
+        NR RRC: SecurityModeCommand\n
+        &lt;----------------------------------------\n
+        Received from GNB\n
+        \n
+        Respond to the GNB using NR RRC \n
+        ????-------------------------------------->\n
+        \n
+        Info:
+        \n
+        RRCSetupComplete is the message sent by the UE to confirm RRC setup and provide initial NAS information.\n
+        \n
+        SecurityModeCommand is the message from the gNB to initiate ciphering and integrity protection setup for the UE.
+    </string>
+    <string name="attach_proc_msg_smc_attach_complete">
+        NR RRC:SecurityModeComplete\n
+        ---------------------------------------->\n
+        successfully sent\n
+        \n
+        Attach procedure complete. Congratulations!\n
+        Next letter is "C"\n
+        But it is not an end of our travel.\n
+        Your user has just started moving through the world\n
+        To keep connection with the network
+        you need to do handover!\n
+        To connect to another cell you need to scan cell nTAG. To find next cell nTAG you need to access cellMap\n
+        You can access cellMap from "CableSocketInTheMiddleOfTheTable.db" on gNB.\n
+    </string>
+
+    <string name="re_attach_message">Well done you have connected again. Try to find next cell. Check configuration carefully</string>
 
     <string name="cell_found_title">Neighbor Cell Detected</string>
 
@@ -65,20 +134,26 @@
                 Do you want to perform a Handover to this cell?
     </string>
 
-    <string name="good_cell1good_message_if_yes_title">Handover Successful!</string>
+    <string name="good_cell1good_message_if_yes_title">Handover Successful!\n</string>
 
-    <string name="good_cell1good_message_if_yes">Your user (?) has just started watching YouTube – high data demand detected!
-                Quickly find the locker number XX, open it and perform the Carrier Aggregation procedure to boost capacity and ensure smooth streaming.
+    <string name="good_cell1good_message_if_yes">But something is happening! It looks like your user has moved to the comfortable place
+        and started watching YouTube with 2160p-4k quality  – high data demand detected!\n
+        \n
+        Quickly find the locker number XX, open it and perform the Carrier Aggregation procedure to boost capacity and ensure smooth streaming.
     </string>
 
     <string name="good_cell2_pcifail_message">RSRP = -67 dBm
                 RSRQ = -8 dB
                 Do you want to perform a Handover to this cell?
     </string>
-    <string name="good_cell2_pcifail_title_if_yes">Handover Failed – PCI Conflict Detected</string>
+    <string name="good_cell2_pcifail_title_if_yes">Handover Failed – PCI Conflict Detected\n</string>
     <string name="good_cell2_pcifail_message_if_yes">
-        A PCI conflict in 5G NR occurs when two nearby cells are assigned the same Physical Cell Identity,
-        causing interference or confusion for user equipment during cell identification and handover. Connection was lost.
+        \n
+        Info:
+        \n
+        A PCI conflict in 5G NR happens when nearby cells share the same ID,
+        causing interference during cell detection and handover.
+        Connection was lost.
         Please re-attach to the network and try again. To do this scan re-attach tag in starting room.
     </string>
     <string name="cell_bad_ho_failed_title">Handover failed!</string>
@@ -100,8 +175,11 @@
         Target cell rejected due to insufficient signal quality. Look for another cell with better signal.
     </string>
 
+    <string name="ca_done_congratulation_title">
+        Congratulations!
+    </string>
     <string name="ca_done_congratulation_message">
-        Congratulation you have completed all necessary procedures. Throughput is on maximum level.
+        You have completed all necessary procedures. Throughput is on maximum level.
         User is watching video with maximum quality and stable connection.
         Last letter is "E"
     </string>

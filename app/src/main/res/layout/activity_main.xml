@@ -5,15 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/cardview_light_background"
+    android:background="@drawable/blue_gradient"
     tools:context=".MainActivity"
-    android:id="@+id/rootLayout">
+    android:id="@+id/rootLayout"
+    android:padding="10dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
+        android:padding="10dp"
         android:orientation="horizontal">
 
         <TextView
@@ -21,30 +23,33 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="4"
-            android:background="@android:color/holo_green_light"
+            android:background="#3274EF"
             android:gravity="center"
+            android:textColor="@android:color/white"
             android:text="Not connected"
-            android:textSize="30sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/signalQualityTextView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="4"
-            android:background="@android:color/holo_green_light"
+            android:background="#3274EF"
+            android:textColor="@android:color/white"
             android:gravity="center"
             android:text="Signal quality"
-            android:textSize="30sp" />
+            android:textSize="20sp" />
     </LinearLayout>
     <TextView
         android:id="@+id/tvTimer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0.5"
-        android:background="@android:color/holo_green_light"
+        android:background="@android:color/holo_green_dark"
         android:gravity="center"
+        android:textAlignment="center"
         android:text="procedure timer"
-        android:textSize="30sp" />
+        android:textSize="20sp" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -58,16 +63,27 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="4"
-            android:gravity="center"
             android:text=""
-            android:textSize="30sp" />
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            android:shadowColor="#000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="1.5"/>
+
     </LinearLayout>
 
     <Button
         android:id="@+id/btnScan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:layout_marginBottom="16dp"
+        android:layout_weight="1"
+        android:backgroundTint="@color/Indigo_accent"
         android:text="Start scanning"
-        android:layout_weight="1"/>
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="16sp" />
 </LinearLayout>
 
