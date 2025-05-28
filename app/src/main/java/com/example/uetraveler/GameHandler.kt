@@ -1,6 +1,7 @@
 package com.example.uetraveler
 
 import android.util.Log
+import androidx.appcompat.app.AlertDialog
 
 class GameHandler(private var inactivityTimer: InactivityTimer,
                   private val sequenceTriggers: Map<String, List<String>>,
@@ -24,6 +25,7 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
 
     fun handleTag(tag: String,isConnected: Boolean) {
         val scannedTag = tag.uppercase()
+
         if (isConnected) {
             if (isSequenceMode) {
                 handleSequenceTag(scannedTag)
@@ -70,6 +72,10 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
                 sendEvent(EGameEvent.CELL3)
             }
 
+            NFCTag.CELL4 -> {
+                sendEvent(EGameEvent.CELL4)
+            }
+
             NFCTag.MEAS1 -> {
                 sendEvent(EGameEvent.MEAS1)
             }
@@ -98,6 +104,7 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
                 Log.e("GameHandler", "Unrecognized NFC command: $scannedTag")
             }
         }
+
         if (isConnected) {
             if (isSequenceMode && currentSequence != null) {
                 handleSequenceTag(scannedTag)
@@ -153,6 +160,7 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
         }
         //inactivityTimer.startTimer()
     }
+
 
     fun resetSequenceMode(){
         currentStep = 0

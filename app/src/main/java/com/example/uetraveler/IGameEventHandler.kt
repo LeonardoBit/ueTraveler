@@ -16,9 +16,11 @@ enum class EGameEvent {
     LOST,
     PCIFAIL,
     ATTACHFINISHED,
+    STARTATTACH,
     MEAS1,
     MEAS2,
     MEAS3,
     CELL2,
-    CELL3
+    CELL3,
+    CELL4,
 }

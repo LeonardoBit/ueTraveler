@@ -38,6 +38,9 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
     private var nfcAdapter: NfcAdapter? = null
     private var isScanning = false
     private var isConnected = true
+    private var isMsg1Scanned = false
+    private var isAttachCompleted = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,6 +117,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
     private fun connectionLost() {
         timerTextView.setBackgroundColor(Color.RED)
         setProcedureStatus(ProcedureStatus.CONNECTION_LOST)
+        setSignalQualityStatus("RSRP X\n RSRQ X")
         gameHandler.resetSequenceMode()
     }
 
@@ -227,9 +231,42 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         }
     }
 
-    private fun executeActionBasedOnTag(data: String,isConnected: Boolean) {
+    private fun executeActionBasedOnTag(data: String, isConnected: Boolean) {
         val scannedTag = data.uppercase()
-        gameHandler.handleTag(scannedTag,isConnected)
+
+        if (scannedTag == NFCTag.MSG1 && !isMsg1Scanned && !isAttachCompleted) {
+            isMsg1Scanned = true
+            openAlertDialogWithTwoAnsNEW(
+                getString(R.string.lock_unlock_good_cell_attach_start_title),
+                getString(R.string.lock_unlock_good_cell_attach_start_message),
+            ){
+            gameHandler.handleTag(scannedTag, isConnected)
+            }
+        }else if(scannedTag == NFCTag.MSG1 && isAttachCompleted && !isConnected) {
+            openAlertDialog("Procedure failed!","You have already completed attach procedure. To restore connection try use re-attach tag on the room doors")
+        }else {
+            gameHandler.handleTag(scannedTag, isConnected)
+        }
+
+    }
+
+    private fun openAlertDialogWithTwoAnsNEW(
+        title: String,
+        message: String,
+        onYes: () -> Unit
+    ) {
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("Yes") { dialog, _ ->
+                onYes()  // Invoke callback when user confirms
+                dialog.dismiss()
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                isMsg1Scanned = false
+                dialog.dismiss()
+            }
+            .show()
     }
 
     private fun setProcedureStatus(status: String){
@@ -370,6 +407,25 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             .show()
     }
 
+    private fun openAlertDialogWithTwoAnsHoSucc(title: String,
+                                                 message: String,
+                                                 titleYes: String,
+                                                 messageYes: String
+    ){
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("Yes") { dialog, _ ->
+                setGameMessage(titleYes+messageYes)
+                setSignalQualityStatus(getString(R.string.good_cell1good_message_new_signal_quality))
+                dialog.dismiss()
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
     private fun doSomethingOnPositiveAnswer(title: String,
                                           message: String) {
         setGameMessage(title+message)
@@ -419,41 +475,54 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                         timerTextView.setBackgroundColor(Color.GREEN)
                 }
 
+                EGameEvent.STARTATTACH -> {
+                    doSomethingOnPositiveAnswer(getString(R.string.good_cell1good_message_if_yes_title),getString(R.string.good_cell1good_message_if_yes))
+                }
+
                 EGameEvent.ATTACHFINISHED -> {
                     //setGameMessage("Procedure DONE awesome.\"Attach complete\", \"Look under the table to for additional information. \"")
                     setProcedureStatus(ProcedureStatus.CONNECTED)
                     setSignalQualityStatus("RSRP -90dB\n RSRQ -50dB")
                     isConnected = true
+                    isMsg1Scanned = false
+                    isAttachCompleted = true
                     inactivityTimer.resetTimer()
                     inactivityTimer.startTimer()
                 }
 
                 EGameEvent.CELL2 -> {
                         openAlertDialogWithTwoAns(
-                            "Cell configuration",
-                            "11101001001. Chose for attach?",
-                            "Attach not started",
-                            "Unfortunately capabilities is not enough"
+                            getString(R.string.lock_unlock_cell2_barred_title_DRVI52A),
+                            getString(R.string.lock_unlock_cell2_barred_message_DRVI52A),
+                            getString(R.string.lock_unlock_cell2_barred_title_if_yes),
+                            getString(R.string.lock_unlock_cell3_barred_message_if_yes)
                         )
                 }
 
                 EGameEvent.CELL3 -> {
                         openAlertDialogWithTwoAns(
-                            "Cell configuration",
-                            "Cell configuration 22222222",
-                            "Attach not started",
-                            "bad caps"
+                            getString(R.string.lock_unlock_cell3_barred_title_DRVI52D),
+                            getString(R.string.lock_unlock_cell3_barred_message_DRVI52D),
+                            getString(R.string.lock_unlock_cell3_barred_title_if_yes),
+                            getString(R.string.lock_unlock_cell3_barred_message_if_yes)
+                        )
+                }
+                EGameEvent.CELL4 -> {
+                        openAlertDialogWithTwoAns(
+                            getString(R.string.lock_unlock_cell4_bad_caps_title_DRVI52C),
+                            getString(R.string.lock_unlock_cell4_bad_caps_message_DRVI52C),
+                            getString(R.string.lock_unlock_cell4_bad_caps_title_if_yes),
+                            getString(R.string.lock_unlock_cell4_bad_caps_message_if_yes)
                         )
                 }
 
                 EGameEvent.MEAS1 -> {
-                    openAlertDialogWithTwoAns(
+                    openAlertDialogWithTwoAnsHoSucc(
                         getString(R.string.cell_found_title),
                         getString(R.string.good_cell1good_message),
                         getString(R.string.good_cell1good_message_if_yes_title),
                         getString(R.string.good_cell1good_message_if_yes)
                     )
-                    //setProcedureStatus("Handover completed. Time to do some CA !!!!")
                     inactivityTimer.startTimer()
                     timerTextView.setBackgroundColor(Color.GREEN)
                 }

@@ -27,7 +27,7 @@
 
     <string name="welcome_message4_title">Capabilities
     </string>
-    <string name="welcome_message4">First of all you need to know what is your capabilities. To know that scan first tag on YOUR desktop.
+    <string name="welcome_message4">First step you need to know what is your capabilities. To know that scan first tag on YOUR desktop.
         Good luck with further adventures and procedures!
     </string>
 
@@ -51,8 +51,35 @@
         HSPA 42.2/5.76 Mbps, LTE-A, 5G (2+ Gbps DL)
     </string>
 
-    <string name="lock_unlock_barred">Hello blank fragment</string>
-    <string name="lock_unlock_bad_caps">Hello blank fragment</string>
+    <string name="lock_unlock_cell2_barred_title_DRVI52A">NRCellDU=DRVI52A</string>
+
+    <string name="lock_unlock_cell2_barred_message_DRVI52A">
+	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52A\nArfcn = 518598\nCellState = BARRED\nStart attach?
+	</string>
+    <string name="lock_unlock_cell2_barred_message_if_yes">Attach failed! Try another Cell</string>
+    <string name="lock_unlock_cell2_barred_title_if_yes">NRCellDU=DRVI52A\nUnfortunately attach not started.\nCell BARRED\n</string>
+
+    <string name="lock_unlock_cell3_barred_title_DRVI52D">NRCellDU=DRVI52D</string>
+    <string name="lock_unlock_cell3_barred_message_DRVI52D">
+	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52D\nArfcn = 518598\nCellState = BARRED\nStart attach?
+	</string>
+
+    <string name="lock_unlock_cell3_barred_message_if_yes">Attach failed! Try another Cell</string>
+    <string name="lock_unlock_cell3_barred_title_if_yes">NRCellDU=DRVI52D\nUnfortunately attach not started.\nCell BARRED\n</string>
+
+    <string name="lock_unlock_cell4_bad_caps_title_DRVI52C">NRCellDU=DRVI52C</string>
+    <string name="lock_unlock_cell4_bad_caps_message_DRVI52C">
+	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52C\nArfcn = 403500\nCellState = NOT_BARRED\nStart attach?
+	</string>
+
+    <string name="lock_unlock_cell4_bad_caps_message_if_yes">Attach failed! Try another Cell</string>
+    <string name="lock_unlock_cell4_bad_caps_title_if_yes">NRCellDU=DRVI52C\nUnfortunately attach not started.\nUE is not cabable of Arfcn = 403500\n</string>
+
+    <string name="lock_unlock_good_cell_attach_start_title">NRCellDU=DRVI52B</string>
+    <string name="lock_unlock_good_cell_attach_start_message">
+	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52B\nArfcn = 518598\nCellState = NOT_BARRED\nStart attach?
+	</string>
+
     <string name="attach_proc_msg1">
         PRACH: MSG1 \n
         ---------------------------------------->\n
@@ -117,15 +144,17 @@
         \n
         Attach procedure complete. Congratulations!\n
         Next letter is "C"\n
-        But it is not an end of our travel.\n
+        But it is not an end of your travel.\n
         Your user has just started moving through the world\n
         To keep connection with the network
-        you need to do handover!\n
-        To connect to another cell you need to scan cell nTAG. To find next cell nTAG you need to access cellMap\n
+        you need to do a handover!\n
+        To connect to another cell you need to scan neighbor cell nTAG. To find next cell nTAG you need to access cellMap\n
         You can access cellMap from "CableSocketInTheMiddleOfTheTable.db" on gNB.\n
     </string>
 
-    <string name="re_attach_message">Well done you have connected again. Try to find next cell. Check configuration carefully</string>
+    <string name="re_attach_message">
+		Well done you have connected again.\n
+		Go forward and try to find next cell. But next time check signal quality carefully.</string>
 
     <string name="cell_found_title">Neighbor Cell Detected</string>
 
@@ -135,7 +164,7 @@
     </string>
 
     <string name="good_cell1good_message_if_yes_title">Handover Successful!\n</string>
-
+    <string name="good_cell1good_message_new_signal_quality">RSRP = -67 dBm\nRSRQ = -8 dB</string>
     <string name="good_cell1good_message_if_yes">But something is happening! It looks like your user has moved to the comfortable place
         and started watching YouTube with 2160p-4k quality  – high data demand detected!\n
         \n
@@ -146,7 +175,7 @@
                 RSRQ = -8 dB
                 Do you want to perform a Handover to this cell?
     </string>
-    <string name="good_cell2_pcifail_title_if_yes">Handover Failed – PCI Conflict Detected\n</string>
+    <string name="good_cell2_pcifail_title_if_yes">Handover Failed – PCI Conflict Detected!\n</string>
     <string name="good_cell2_pcifail_message_if_yes">
         \n
         Info:
@@ -157,11 +186,11 @@
         Please re-attach to the network and try again. To do this scan re-attach tag in starting room.
     </string>
     <string name="cell_bad_ho_failed_title">Handover failed!</string>
+
     <string name="cell3bad">RSRP = -80 dBm
                 RSRQ = -9 dB
                 Do you want to perform a Handover to this cell?
     </string>
-
     <string name="cell3bad_answer_yes">
         Target cell rejected due to insufficient signal quality. Look for another cell with better signal.
     </string>
@@ -170,7 +199,6 @@
                 RSRQ = -6 dB
                 Do you want to perform a Handover to this cell?
     </string>
-
     <string name="cell4bad_answer_yes">
         Target cell rejected due to insufficient signal quality. Look for another cell with better signal.
     </string>

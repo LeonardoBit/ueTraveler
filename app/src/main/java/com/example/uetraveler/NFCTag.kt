@@ -21,6 +21,7 @@ object NFCTag {
     //Bad cells for attach procedure (MSG1 start attach procedure)
     const val CELL2 = "CELL2"
     const val CELL3 = "CELL3"
+    const val CELL4 = "CELL4"
 
 
 }
