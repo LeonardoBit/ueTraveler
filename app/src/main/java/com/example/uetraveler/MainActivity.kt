@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
 
     private lateinit var inactivityTimer: InactivityTimer
     private lateinit var gameHandler: GameHandler
+    private lateinit var soundPlayer: SoundPlayer
 
     private lateinit var infoFragment: InfoFragment
     private lateinit var quizFragment: QuizFragment
@@ -58,6 +59,15 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             Toast.makeText(this, "NFC not supported on this device", Toast.LENGTH_LONG).show()
             finish()
         }
+
+
+        soundPlayer = SoundPlayer(this)
+        soundPlayer.loadSound(this, R.raw.good_beep)
+        soundPlayer.loadSound(this, R.raw.bad_beep)
+        soundPlayer.loadSound(this, R.raw.win)
+        soundPlayer.loadSound(this, R.raw.win_end_game)
+
+
 
         val sequenceTriggers: Map<String, List<String>> = mapOf(
             NFCTag.MSG1 to listOf(NFCTag.MSG1, NFCTag.MSG3, NFCTag.RRCSC,NFCTag.SMC)
@@ -105,7 +115,8 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         gameHandler = GameHandler(
             inactivityTimer,
             sequenceTriggers,
-            sequenceStatus
+            sequenceStatus,
+            soundPlayer,
         ) { statusMessage ->
             runOnUiThread {
                 setGameMessage(statusMessage)
@@ -121,6 +132,17 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         gameHandler.resetSequenceMode()
     }
 
+    private fun playSoundGood() {
+        soundPlayer.playSound(R.raw.good_beep)
+    }
+
+    private fun playSoundBad() {
+        soundPlayer.playSound(R.raw.bad_beep)
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        soundPlayer.release()  // assuming you have a SoundPlayer instance
+    }
     private fun enableNfcScanning() {
         scanButton.text = "Stop scanning"
         val pendingIntent = PendingIntent.getActivity(
@@ -235,6 +257,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         val scannedTag = data.uppercase()
 
         if (scannedTag == NFCTag.MSG1 && !isMsg1Scanned && !isAttachCompleted) {
+
             isMsg1Scanned = true
             openAlertDialogWithTwoAnsNEW(
                 getString(R.string.lock_unlock_good_cell_attach_start_title),
@@ -243,6 +266,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             gameHandler.handleTag(scannedTag, isConnected)
             }
         }else if(scannedTag == NFCTag.MSG1 && isAttachCompleted && !isConnected) {
+            playSoundBad()
             openAlertDialog("Procedure failed!","You have already completed attach procedure. To restore connection try use re-attach tag on the room doors")
         }else {
             gameHandler.handleTag(scannedTag, isConnected)
@@ -399,6 +423,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 setProcedureStatus(ProcedureStatus.CONNECTION_LOST)
                 timerTextView.setBackgroundColor(Color.RED)
                 setSignalQualityStatus("RSRP X\n RSRQ X")
+                soundPlayer.playSound(R.raw.bad_beep)
                 dialog.dismiss()
             }
             .setNegativeButton("No") { dialog, _ ->
@@ -418,6 +443,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             .setPositiveButton("Yes") { dialog, _ ->
                 setGameMessage(titleYes+messageYes)
                 setSignalQualityStatus(getString(R.string.good_cell1good_message_new_signal_quality))
+                soundPlayer.playSound(R.raw.win)
                 dialog.dismiss()
             }
             .setNegativeButton("No") { dialog, _ ->
@@ -442,6 +468,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         }else {
             when (event) {
                 EGameEvent.START ->{
+                    soundPlayer.playSound(R.raw.good_beep)
                     setProcedureStatus(ProcedureStatus.CONNECTED)
                     timerTextView.setBackgroundColor(Color.GREEN)
                     setGameMessage(getString(R.string.re_attach_message),)
@@ -480,7 +507,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 }
 
                 EGameEvent.ATTACHFINISHED -> {
-                    //setGameMessage("Procedure DONE awesome.\"Attach complete\", \"Look under the table to for additional information. \"")
+                    soundPlayer.playSound(R.raw.win)
                     setProcedureStatus(ProcedureStatus.CONNECTED)
                     setSignalQualityStatus("RSRP -90dB\n RSRQ -50dB")
                     isConnected = true
@@ -548,6 +575,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 }
 
                 EGameEvent.CA -> {
+                    soundPlayer.playSound(R.raw.win_end_game)
                     setGameMessage(getString(R.string.ca_done_congratulation_message))
                     congratsMessage()
                     timerTextView.setBackgroundColor(Color.GREEN)

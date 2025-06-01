@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog
 class GameHandler(private var inactivityTimer: InactivityTimer,
                   private val sequenceTriggers: Map<String, List<String>>,
                   private val sequenceStatus: Map<String, String>,
+                  private val soundPlayer: SoundPlayer,
                   private val sendStatusUpdate: (String) -> Unit) {
 
     private var eventHandlers: MutableList<IGameEventHandler> = mutableListOf()
@@ -142,7 +143,7 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
             Log.d("GameHandler", "Correct tag scanned: $scannedTag at step $currentStep")
 
             // This is where the status should be sent
-
+            soundPlayer.playSound(R.raw.good_beep)
             currentStep++
 
             if (currentStep == sequence.size) {
@@ -155,6 +156,7 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
             }
         } else {
             // Wrong tag scanned during sequence
+            soundPlayer.playSound(R.raw.bad_beep)
             Log.e("GameHandler", "Wrong tag! Expected $expectedTag but scanned $scannedTag")
             sendStatusUpdate("Wrong tag! Expected: $expectedTag scanned: $scannedTag")
         }
