@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
     private var isConnected = true
     private var isMsg1Scanned = false
     private var isAttachCompleted = false
+    private var lastConnectedPci = 0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -128,7 +129,9 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
     private fun connectionLost() {
         timerTextView.setBackgroundColor(Color.RED)
         setProcedureStatus(ProcedureStatus.CONNECTION_LOST)
-        setSignalQualityStatus("RSRP X\n RSRQ X")
+        setCellPCI("PCI\nXX",lastConnectedPci)
+        setGameMessage("Re-attach to the last connected CELL")
+        isConnected = false
         gameHandler.resetSequenceMode()
     }
 
@@ -267,7 +270,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             }
         }else if(scannedTag == NFCTag.MSG1 && isAttachCompleted && !isConnected) {
             playSoundBad()
-            openAlertDialog("Procedure failed!","You have already completed attach procedure. To restore connection try use re-attach tag on the room doors")
+            openAlertDialog("Procedure failed!","You have already completed attach procedure. To restore connection try to re-attach to the last connected cell.")
         }else {
             gameHandler.handleTag(scannedTag, isConnected)
         }
@@ -282,6 +285,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         AlertDialog.Builder(this)
             .setTitle(title)
             .setMessage(message)
+            .setCancelable(false)
             .setPositiveButton("Yes") { dialog, _ ->
                 onYes()  // Invoke callback when user confirms
                 dialog.dismiss()
@@ -301,8 +305,9 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         messageTextView.text = status
     }
 
-    private fun setSignalQualityStatus(status: String){
+    private fun setCellPCI(status: String, pci: Int){
         signalQualityTextView.text = status
+        lastConnectedPci = pci
     }
 
     private fun updateTimerText(seconds: Int) {
@@ -381,6 +386,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         val builder = AlertDialog.Builder(this)
         builder.setTitle(title)
         builder.setMessage(message)
+        builder.setCancelable(false)
         builder.setPositiveButton("Ok") { dialog, _ ->
             dialog.dismiss()
             onDismiss?.invoke()  // Run callback after dismissal
@@ -400,6 +406,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         AlertDialog.Builder(this)
             .setTitle(title)
             .setMessage(message)
+            .setCancelable(false)
             .setPositiveButton("Yes") { dialog, _ ->
                 doSomethingOnPositiveAnswer(titleYes, messageYes)
                 dialog.dismiss()
@@ -418,11 +425,13 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         AlertDialog.Builder(this)
             .setTitle(title)
             .setMessage(message)
+            .setCancelable(false)
             .setPositiveButton("Yes") { dialog, _ ->
                 setGameMessage(titleYes+messageYes)
                 setProcedureStatus(ProcedureStatus.CONNECTION_LOST)
+                inactivityTimer.stopTimer()
                 timerTextView.setBackgroundColor(Color.RED)
-                setSignalQualityStatus("RSRP X\n RSRQ X")
+                setCellPCI("PCI\nXX", lastConnectedPci)
                 soundPlayer.playSound(R.raw.bad_beep)
                 dialog.dismiss()
             }
@@ -440,10 +449,13 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         AlertDialog.Builder(this)
             .setTitle(title)
             .setMessage(message)
+            .setCancelable(false)
             .setPositiveButton("Yes") { dialog, _ ->
                 setGameMessage(titleYes+messageYes)
-                setSignalQualityStatus(getString(R.string.good_cell1good_message_new_signal_quality))
+                setCellPCI(getString(R.string.good_cell1good_message_new_pci),295)
                 soundPlayer.playSound(R.raw.win)
+                inactivityTimer.resetTimer()
+                inactivityTimer.startTimer()
                 dialog.dismiss()
             }
             .setNegativeButton("No") { dialog, _ ->
@@ -458,22 +470,38 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
     }
 
     override fun handleGameEvent(event: EGameEvent) {
-        if(event != EGameEvent.START && procInfoTextView.text == ProcedureStatus.CONNECTION_LOST) {
-            if (procInfoTextView.text == ProcedureStatus.CONNECTION_LOST) {
+        if(event != EGameEvent.START && procInfoTextView.text == ProcedureStatus.CONNECTION_LOST ) {
+            if(event == EGameEvent.MEAS1 && lastConnectedPci==295) {
+                soundPlayer.playSound(R.raw.good_beep)
+                setProcedureStatus(ProcedureStatus.CONNECTED)
+                timerTextView.setBackgroundColor(Color.GREEN)
+                setGameMessage(getString(R.string.re_attach_message_after_handover))
+                setCellPCI("PCI\n295",lastConnectedPci)
+                isConnected = true
+                inactivityTimer.resetTimer()
+                inactivityTimer.startTimer()
+            }else {
                 openAlertDialog(
                     "Connection lost ",
-                    "Please attach again. To do this return to the initial room and scan re-attach tag on the door!"
+                    "Please attach again. To the last connected cell"
                 )
             }
-        }else {
+        } else {
             when (event) {
                 EGameEvent.START ->{
-                    soundPlayer.playSound(R.raw.good_beep)
+                    if(lastConnectedPci == 292){
+                    playSoundGood()
                     setProcedureStatus(ProcedureStatus.CONNECTED)
                     timerTextView.setBackgroundColor(Color.GREEN)
                     setGameMessage(getString(R.string.re_attach_message),)
-                    setSignalQualityStatus("RSRP -90dB\n RSRQ -50dB")
+                    setCellPCI("PCI\n292",lastConnectedPci)
                     isConnected = true
+                    inactivityTimer.resetTimer()
+                    inactivityTimer.startTimer()
+                    }else{
+                        playSoundBad()
+                        setGameMessage("Wrong re-attach cell. You have been connected to another cell")
+                    }
                 }
 
                 EGameEvent.PCIFAIL -> {
@@ -486,30 +514,15 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                     isConnected = false
                 }
 
-                EGameEvent.RESET -> {
-                        setProcedureStatus(ProcedureStatus.CONNECTED)
-                        timerTextView.setBackgroundColor(Color.GREEN)
-                        Toast.makeText(this, "Timer reset!", Toast.LENGTH_SHORT).show()
-                }
-
-                EGameEvent.PAUSE -> {
-                    setProcedureStatus("Procedure paused")
-                }
-
                 EGameEvent.MSG1 -> {
-                        setGameMessage("Attach procedure started")
                         inactivityTimer.startTimer()
                         timerTextView.setBackgroundColor(Color.GREEN)
-                }
-
-                EGameEvent.STARTATTACH -> {
-                    doSomethingOnPositiveAnswer(getString(R.string.good_cell1good_message_if_yes_title),getString(R.string.good_cell1good_message_if_yes))
                 }
 
                 EGameEvent.ATTACHFINISHED -> {
                     soundPlayer.playSound(R.raw.win)
                     setProcedureStatus(ProcedureStatus.CONNECTED)
-                    setSignalQualityStatus("RSRP -90dB\n RSRQ -50dB")
+                    setCellPCI("PCI\n292", 292)
                     isConnected = true
                     isMsg1Scanned = false
                     isAttachCompleted = true
@@ -550,7 +563,6 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                         getString(R.string.good_cell1good_message_if_yes_title),
                         getString(R.string.good_cell1good_message_if_yes)
                     )
-                    inactivityTimer.startTimer()
                     timerTextView.setBackgroundColor(Color.GREEN)
                 }
 
@@ -575,12 +587,18 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 }
 
                 EGameEvent.CA -> {
-                    soundPlayer.playSound(R.raw.win_end_game)
-                    setGameMessage(getString(R.string.ca_done_congratulation_message))
-                    congratsMessage()
-                    timerTextView.setBackgroundColor(Color.GREEN)
-                    procInfoTextView.text = "WELL"
-                    signalQualityTextView.text = "DONE"
+                    if(lastConnectedPci == 295){
+                        soundPlayer.playSound(R.raw.win_end_game)
+                        setGameMessage(getString(R.string.ca_done_congratulation_message))
+                        congratsMessage()
+                        inactivityTimer.stopTimer()
+                        timerTextView.setBackgroundColor(Color.GREEN)
+                        procInfoTextView.text = "WELL"
+                        signalQualityTextView.text = "DONE"
+                    }else{
+                        soundPlayer.playSound(R.raw.bad_beep)
+                        setGameMessage("It looks like you have't finnished HO procedure")
+                    }
                 }
 
                 EGameEvent.CAPS -> {

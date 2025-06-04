@@ -2,7 +2,7 @@
     <string name="app_name">ueTraveler</string>
 
     <string name="welcome_message_title">
-        Welcomed to the network
+        Welcome to the network
     </string>
     <string name="welcome_message1">During this adventure you will be able to experience three more procedures.
         Attach, Handover and Carrier Aggregation.
@@ -13,8 +13,8 @@
     </string>
 
     <string name="welcome_message2">Good job with unlocking needed cells!
-        Now you can connect to one of them. To do that you need to choose suitable cell and attach.
-        Which one is suitable? That one you will be CAPABLE to handle as a UE.
+        Now you can attach to it. To do that you need to choose suitable cell and perform an attach.
+        Which one is suitable? The one you will be CAPABLE to handle as a UE.
     </string>
 
     <string name="welcome_message3_title">Communication with network
@@ -27,7 +27,7 @@
 
     <string name="welcome_message4_title">Capabilities
     </string>
-    <string name="welcome_message4">First step you need to know what is your capabilities. To know that scan first tag on YOUR desktop.
+    <string name="welcome_message4">First step - you need to know what is your capabilities. To know that scan first tag on YOUR desktop.
         Good luck with further adventures and procedures!
     </string>
 
@@ -54,30 +54,30 @@
     <string name="lock_unlock_cell2_barred_title_DRVI52A">NRCellDU=DRVI52A</string>
 
     <string name="lock_unlock_cell2_barred_message_DRVI52A">
-	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52A\nArfcn = 518598\nCellState = BARRED\nStart attach?
+	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52A\nArfcn = 518598\nCellState = BARRED\nPCI=291\nStart attach?
 	</string>
     <string name="lock_unlock_cell2_barred_message_if_yes">Attach failed! Try another Cell</string>
-    <string name="lock_unlock_cell2_barred_title_if_yes">NRCellDU=DRVI52A\nUnfortunately attach not started.\nCell BARRED\n</string>
+    <string name="lock_unlock_cell2_barred_title_if_yes">NRCellDU=DRVI52A\nUnfortunately attach has not started.\nCell BARRED\n</string>
 
     <string name="lock_unlock_cell3_barred_title_DRVI52D">NRCellDU=DRVI52D</string>
     <string name="lock_unlock_cell3_barred_message_DRVI52D">
-	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52D\nArfcn = 518598\nCellState = BARRED\nStart attach?
+	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52D\nArfcn = 518598\nCellState = BARRED\nPCI=293\nStart attach?
 	</string>
 
     <string name="lock_unlock_cell3_barred_message_if_yes">Attach failed! Try another Cell</string>
-    <string name="lock_unlock_cell3_barred_title_if_yes">NRCellDU=DRVI52D\nUnfortunately attach not started.\nCell BARRED\n</string>
+    <string name="lock_unlock_cell3_barred_title_if_yes">NRCellDU=DRVI52D\nUnfortunately attach has not started.\nCell BARRED\n</string>
 
     <string name="lock_unlock_cell4_bad_caps_title_DRVI52C">NRCellDU=DRVI52C</string>
     <string name="lock_unlock_cell4_bad_caps_message_DRVI52C">
-	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52C\nArfcn = 403500\nCellState = NOT_BARRED\nStart attach?
+	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52C\nArfcn = 403500\nCellState = NOT_BARRED\nPCI=294\nStart attach?
 	</string>
 
     <string name="lock_unlock_cell4_bad_caps_message_if_yes">Attach failed! Try another Cell</string>
-    <string name="lock_unlock_cell4_bad_caps_title_if_yes">NRCellDU=DRVI52C\nUnfortunately attach not started.\nUE is not cabable of Arfcn = 403500\n</string>
+    <string name="lock_unlock_cell4_bad_caps_title_if_yes">NRCellDU=DRVI52C\nUnfortunately attach has not started.\nUE is not cabable of Arfcn = 403500\n</string>
 
     <string name="lock_unlock_good_cell_attach_start_title">NRCellDU=DRVI52B</string>
     <string name="lock_unlock_good_cell_attach_start_message">
-	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52B\nArfcn = 518598\nCellState = NOT_BARRED\nStart attach?
+	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52B\nArfcn = 518598\nCellState = NOT_BARRED\nPCI=292\nStart attach?
 	</string>
 
     <string name="attach_proc_msg1">
@@ -92,12 +92,6 @@
         BB part of GNB is waiting for the next message\n
         ????-------------------------------------->\n
         \n
-        Info:
-        \n
-        MSG1 is the preamble sent by the UE on PRACH to request uplink sync and start the RA procedure.\n
-        \n
-        MSG2 is the Random Access Response sent by the gNB, providing timing advance, uplink grant, and temporary ID to the UE.
-
     </string>
 
     <string name="attach_proc_msg3">
@@ -112,11 +106,6 @@
         Respond to the GNB using PUSCH\n
         ????-------------------------------------->\n
         \n
-        Info:
-        \n
-        MSG3 is the message sent after the Random Access Response, carrying UE identity or scheduling info.\n
-        \n
-        PUSCH: RRCSetup is the message sent by the gNB on PUSCH, delivering RRC parameters to establish the UE connection.
     </string>
 
     <string name="attach_proc_msg_rrcsc">
@@ -131,11 +120,6 @@
         Respond to the GNB using NR RRC \n
         ????-------------------------------------->\n
         \n
-        Info:
-        \n
-        RRCSetupComplete is the message sent by the UE to confirm RRC setup and provide initial NAS information.\n
-        \n
-        SecurityModeCommand is the message from the gNB to initiate ciphering and integrity protection setup for the UE.
     </string>
     <string name="attach_proc_msg_smc_attach_complete">
         NR RRC:SecurityModeComplete\n
@@ -143,18 +127,26 @@
         successfully sent\n
         \n
         Attach procedure complete. Congratulations!\n
-        Next letter is "C"\n
-        But it is not an end of your travel.\n
+        Next password latter is "C"(1,6,27)\n
+        But it is not the end of your travel.\n
         Your user has just started moving through the world\n
         To keep connection with the network
         you need to do a handover!\n
         To connect to another cell you need to scan neighbor cell nTAG. To find next cell nTAG you need to access cellMap\n
-        You can access cellMap from "CableSocketInTheMiddleOfTheTable.db" on gNB.\n
+        You can access cellMap from database\n
+        "SocketInTheMiddleOfTheTable.db".\n
     </string>
 
     <string name="re_attach_message">
-		Well done you have connected again.\n
-		Go forward and try to find next cell. But next time check signal quality carefully.</string>
+		Well done! You have connected again.\n
+		Go ahead and try to find the next cell. But next time check signal quality carefully.\n
+        You have received additional letter for the password "O"(2,21,29)
+    </string>
+
+    <string name="re_attach_message_after_handover">
+		Well done! You have connected again.\n
+		Proceed with Carrie aggregation procedure.\n
+    </string>
 
     <string name="cell_found_title">Neighbor Cell Detected</string>
 
@@ -164,8 +156,9 @@
     </string>
 
     <string name="good_cell1good_message_if_yes_title">Handover Successful!\n</string>
-    <string name="good_cell1good_message_new_signal_quality">RSRP = -67 dBm\nRSRQ = -8 dB</string>
-    <string name="good_cell1good_message_if_yes">But something is happening! It looks like your user has moved to the comfortable place
+    <string name="good_cell1good_message_new_pci">PCI\n295</string>
+    <string name="good_cell1good_message_if_yes">Letter for the password "N"(3,4,22).\n
+        But something is happening! It looks like your user has moved to a comfortable place\n
         and started watching YouTube with 2160p-4k quality  – high data demand detected!\n
         \n
         Quickly find the locker number XX, open it and perform the Carrier Aggregation procedure to boost capacity and ensure smooth streaming.
@@ -209,7 +202,7 @@
     <string name="ca_done_congratulation_message">
         You have completed all necessary procedures. Throughput is on maximum level.
         User is watching video with maximum quality and stable connection.
-        Last letter is "E"
+        Last letter for the password is "E" (5,8,11,16,19,26)
     </string>
 
 
