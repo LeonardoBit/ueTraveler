@@ -1,5 +1,6 @@
 package com.example.uetraveler
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentFilter
@@ -11,12 +12,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import java.nio.charset.Charset
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.example.uetraveler.fragments.InfoFragment
@@ -41,6 +44,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
     private var isConnected = true
     private var isMsg1Scanned = false
     private var isAttachCompleted = false
+    private var isHandoverCompleted = false
     private var lastConnectedPci = 0
 
 
@@ -84,6 +88,13 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             // Status text for each step
         )
 
+        val sequenceWrongTagScannedMsg: Map<String, String> = mapOf(
+            NFCTag.MSG1 to getString(R.string.sequence_bad_msg1),
+            NFCTag.MSG3 to getString(R.string.sequence_bad_msg3),
+            NFCTag.RRCSC to getString(R.string.sequence_bad_rrcsc),
+            NFCTag.SMC to getString(R.string.sequence_bad_smc)
+        )
+
         startMessage()
 
         updateTimerText(0)
@@ -117,6 +128,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             inactivityTimer,
             sequenceTriggers,
             sequenceStatus,
+            sequenceWrongTagScannedMsg,
             soundPlayer,
         ) { statusMessage ->
             runOnUiThread {
@@ -148,6 +160,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
     }
     private fun enableNfcScanning() {
         scanButton.text = "Stop scanning"
+        scanButton.setBackgroundColor(ContextCompat.getColor(this,R.color.Red))
         val pendingIntent = PendingIntent.getActivity(
             this, 0, Intent(this, javaClass).apply {
                 addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -169,9 +182,11 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         nfcAdapter?.enableForegroundDispatch(this, pendingIntent, filters, techList)
     }
 
+    @SuppressLint("ResourceAsColor")
     private fun disableNfcScanning() {
         if (nfcAdapter != null) {
             scanButton.text = "Start scanning"
+            scanButton.setBackgroundColor(ContextCompat.getColor(this,R.color.Indigo_accent))
             try {
                 nfcAdapter?.disableForegroundDispatch(this)
             } catch (e: IllegalStateException) {
@@ -452,10 +467,11 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             .setCancelable(false)
             .setPositiveButton("Yes") { dialog, _ ->
                 setGameMessage(titleYes+messageYes)
-                setCellPCI(getString(R.string.good_cell1good_message_new_pci),295)
+                setCellPCI(getString(R.string.good_cell1good_message_new_pci),21)
                 soundPlayer.playSound(R.raw.win)
                 inactivityTimer.resetTimer()
                 inactivityTimer.startTimer()
+                isHandoverCompleted = true
                 dialog.dismiss()
             }
             .setNegativeButton("No") { dialog, _ ->
@@ -471,12 +487,12 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
 
     override fun handleGameEvent(event: EGameEvent) {
         if(event != EGameEvent.START && procInfoTextView.text == ProcedureStatus.CONNECTION_LOST ) {
-            if(event == EGameEvent.MEAS1 && lastConnectedPci==295) {
+            if(event == EGameEvent.MEAS1 && lastConnectedPci==21) {
                 soundPlayer.playSound(R.raw.good_beep)
                 setProcedureStatus(ProcedureStatus.CONNECTED)
                 timerTextView.setBackgroundColor(Color.GREEN)
                 setGameMessage(getString(R.string.re_attach_message_after_handover))
-                setCellPCI("PCI\n295",lastConnectedPci)
+                setCellPCI("PCI\n21",lastConnectedPci)
                 isConnected = true
                 inactivityTimer.resetTimer()
                 inactivityTimer.startTimer()
@@ -489,29 +505,36 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         } else {
             when (event) {
                 EGameEvent.START ->{
-                    if(lastConnectedPci == 292){
+                    if(lastConnectedPci == 12){
                     playSoundGood()
                     setProcedureStatus(ProcedureStatus.CONNECTED)
                     timerTextView.setBackgroundColor(Color.GREEN)
                     setGameMessage(getString(R.string.re_attach_message),)
-                    setCellPCI("PCI\n292",lastConnectedPci)
+                    setCellPCI("PCI\n12",lastConnectedPci)
                     isConnected = true
                     inactivityTimer.resetTimer()
                     inactivityTimer.startTimer()
                     }else{
                         playSoundBad()
-                        setGameMessage("Wrong re-attach cell. You have been connected to another cell")
+                        setGameMessage("Wrong re-attach cell. Please re-attach to the last connected cell.")
                     }
                 }
 
                 EGameEvent.PCIFAIL -> {
+                    if(!isHandoverCompleted) {
                         openAlertDialogWithTwoAnsPCIFAIL(
                             getString(R.string.cell_found_title),
                             getString(R.string.good_cell2_pcifail_message),
                             getString(R.string.good_cell2_pcifail_title_if_yes),
                             getString(R.string.good_cell2_pcifail_message_if_yes)
                         )
-                    isConnected = false
+                        isConnected = false
+                    }else{
+                        openAlertDialog("Handover already completed!",
+                            "You have already connected to a cell with good signal condition." +
+                                    "\n No need to handover to another cell")
+
+                    }
                 }
 
                 EGameEvent.MSG1 -> {
@@ -522,9 +545,9 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 EGameEvent.ATTACHFINISHED -> {
                     soundPlayer.playSound(R.raw.win)
                     setProcedureStatus(ProcedureStatus.CONNECTED)
-                    setCellPCI("PCI\n292", 292)
+                    setCellPCI("PCI\n12", 12)
                     isConnected = true
-                    isMsg1Scanned = false
+                    //isMsg1Scanned = false
                     isAttachCompleted = true
                     inactivityTimer.resetTimer()
                     inactivityTimer.startTimer()
@@ -567,27 +590,37 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 }
 
                 EGameEvent.MEAS2 -> {
-                    openAlertDialogWithTwoAns(
-                        getString(R.string.cell_found_title),
-                        getString(R.string.cell3bad),
-                        getString(R.string.cell_bad_ho_failed_title),
-                        getString(R.string.cell3bad_answer_yes)
-                    )
-                    timerTextView.setBackgroundColor(Color.GREEN)
+                    if(!isHandoverCompleted) {
+                        openAlertDialogWithTwoAns(
+                            getString(R.string.cell_found_title),
+                            getString(R.string.cell3bad),
+                            getString(R.string.cell_bad_ho_failed_title),
+                            getString(R.string.cell3bad_answer_yes)
+                        )
+                        timerTextView.setBackgroundColor(Color.GREEN)
+                    }else{
+                        openAlertDialog("Handover already completed!",
+                            "You have already connected to a cell with good signal condition." +
+                                    "\n No need to handover to another cell")
+                    }
                 }
 
                 EGameEvent.MEAS3 -> {
-                    openAlertDialogWithTwoAns(
-                        getString(R.string.cell_found_title),
-                        getString(R.string.cell4bad),
-                        getString(R.string.cell_bad_ho_failed_title),
-                        getString(R.string.cell4bad_answer_yes)
-                    )
-                    timerTextView.setBackgroundColor(Color.GREEN)
+                    if(!isHandoverCompleted) {
+                        openAlertDialogWithTwoAns(
+                            getString(R.string.cell_found_title),
+                            getString(R.string.cell4bad),
+                            getString(R.string.cell_bad_ho_failed_title),
+                            getString(R.string.cell4bad_answer_yes)
+                        )
+                        timerTextView.setBackgroundColor(Color.GREEN)
+                    }else{
+                        openAlertDialog("Handover already completed!","You have already connected to a cell with good signal condition.\n No need to handover to another cell")
+                    }
                 }
 
                 EGameEvent.CA -> {
-                    if(lastConnectedPci == 295){
+                    if(lastConnectedPci == 21){
                         soundPlayer.playSound(R.raw.win_end_game)
                         setGameMessage(getString(R.string.ca_done_congratulation_message))
                         congratsMessage()

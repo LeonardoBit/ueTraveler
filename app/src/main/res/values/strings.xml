@@ -53,15 +53,29 @@
 
     <string name="lock_unlock_cell2_barred_title_DRVI52A">NRCellDU=DRVI52A</string>
 
+    <string name="sequence_bad_msg1">MSG 1 sent not in correct order.\n
+        Remember that MSG1 (Random access Preamble) is a first\n
+        UE message send to initiate attach procedure.</string>
+
+    <string name="sequence_bad_msg3">MSG 3 sent not in correct order.\n
+        Remember that MSG3 (RRCSetupRequest) is a message\n
+        UE send after receiving MSG2(Random access response)</string>
+
+    <string name="sequence_bad_rrcsc">RRCSetupComplete message sent not in correct order.\n
+        RRCSetupComplete message is a UE response\n for PUSCH:RRCSetup received from GNB</string>
+
+    <string name="sequence_bad_smc">SecurityModeComplete sent not in correct order.\n
+        SecurityModeComplete is a response for NR RRC:SecurityModeCommand received from GNB</string>
+
     <string name="lock_unlock_cell2_barred_message_DRVI52A">
-	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52A\nArfcn = 518598\nCellState = BARRED\nPCI=291\nStart attach?
+	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52A\nArfcn = 518598\nCellState = BARRED\nnRPCI=11\nStart attach?
 	</string>
     <string name="lock_unlock_cell2_barred_message_if_yes">Attach failed! Try another Cell</string>
     <string name="lock_unlock_cell2_barred_title_if_yes">NRCellDU=DRVI52A\nUnfortunately attach has not started.\nCell BARRED\n</string>
 
     <string name="lock_unlock_cell3_barred_title_DRVI52D">NRCellDU=DRVI52D</string>
     <string name="lock_unlock_cell3_barred_message_DRVI52D">
-	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52D\nArfcn = 518598\nCellState = BARRED\nPCI=293\nStart attach?
+	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52D\nArfcn = 518598\nCellState = BARRED\nnRPCI=13\nStart attach?
 	</string>
 
     <string name="lock_unlock_cell3_barred_message_if_yes">Attach failed! Try another Cell</string>
@@ -69,7 +83,7 @@
 
     <string name="lock_unlock_cell4_bad_caps_title_DRVI52C">NRCellDU=DRVI52C</string>
     <string name="lock_unlock_cell4_bad_caps_message_DRVI52C">
-	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52C\nArfcn = 403500\nCellState = NOT_BARRED\nPCI=294\nStart attach?
+	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52C\nArfcn = 403500\nCellState = NOT_BARRED\nnRPCI=14\nStart attach?
 	</string>
 
     <string name="lock_unlock_cell4_bad_caps_message_if_yes">Attach failed! Try another Cell</string>
@@ -77,7 +91,7 @@
 
     <string name="lock_unlock_good_cell_attach_start_title">NRCellDU=DRVI52B</string>
     <string name="lock_unlock_good_cell_attach_start_message">
-	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52B\nArfcn = 518598\nCellState = NOT_BARRED\nPCI=292\nStart attach?
+	RDN = GNBDUFunction=1,NRSectorCarrier=DRVI52B\nArfcn = 518598\nCellState = NOT_BARRED\nnRPCI=12\nStart attach?
 	</string>
 
     <string name="attach_proc_msg1">
@@ -150,23 +164,25 @@
 
     <string name="cell_found_title">Neighbor Cell Detected</string>
 
-    <string name="good_cell1good_message">RSRP = -67 dBm
-                RSRQ = -8 dB
-                Do you want to perform a Handover to this cell?
+    <string name="good_cell1good_message"> RSRP = -67 dBm\n
+        RSRQ = -8 dB\n
+        nRPCI = 21\n
+        Do you want to perform a Handover to this cell?
     </string>
 
     <string name="good_cell1good_message_if_yes_title">Handover Successful!\n</string>
-    <string name="good_cell1good_message_new_pci">PCI\n295</string>
+    <string name="good_cell1good_message_new_pci">nRPCI\n21</string>
     <string name="good_cell1good_message_if_yes">Letter for the password "N"(3,4,22).\n
         But something is happening! It looks like your user has moved to a comfortable place\n
         and started watching YouTube with 2160p-4k quality  – high data demand detected!\n
         \n
-        Quickly find the locker number XX, open it and perform the Carrier Aggregation procedure to boost capacity and ensure smooth streaming.
+        Quickly find the locker number 3.039, open it and perform the Carrier Aggregation procedure to boost capacity and ensure smooth streaming.
     </string>
 
-    <string name="good_cell2_pcifail_message">RSRP = -67 dBm
-                RSRQ = -8 dB
-                Do you want to perform a Handover to this cell?
+    <string name="good_cell2_pcifail_message"> RSRP = -67 dBm\n
+        RSRQ = -8 dB\n
+        nRPCI = 21\n
+        Do you want to perform a Handover to this cell?
     </string>
     <string name="good_cell2_pcifail_title_if_yes">Handover Failed – PCI Conflict Detected!\n</string>
     <string name="good_cell2_pcifail_message_if_yes">
@@ -180,17 +196,19 @@
     </string>
     <string name="cell_bad_ho_failed_title">Handover failed!</string>
 
-    <string name="cell3bad">RSRP = -80 dBm
-                RSRQ = -9 dB
-                Do you want to perform a Handover to this cell?
+    <string name="cell3bad"> RSRP = -80 dBm\n
+        RSRQ = -9 dB\n
+        nRPCI = 15\n
+        Do you want to perform a Handover to this cell?
     </string>
     <string name="cell3bad_answer_yes">
         Target cell rejected due to insufficient signal quality. Look for another cell with better signal.
     </string>
 
-    <string name="cell4bad">RSRP = -85 dBm
-                RSRQ = -6 dB
-                Do you want to perform a Handover to this cell?
+    <string name="cell4bad"> RSRP = -85 dBm\n
+        RSRQ = -6 dB\n
+        nRPCI = 31\n
+        Do you want to perform a Handover to this cell?
     </string>
     <string name="cell4bad_answer_yes">
         Target cell rejected due to insufficient signal quality. Look for another cell with better signal.

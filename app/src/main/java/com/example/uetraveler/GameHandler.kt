@@ -1,11 +1,13 @@
 package com.example.uetraveler
 
+import android.provider.Settings.Global.getString
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
 
 class GameHandler(private var inactivityTimer: InactivityTimer,
                   private val sequenceTriggers: Map<String, List<String>>,
                   private val sequenceStatus: Map<String, String>,
+                  private val sequenceWrongTagScannedMsg: Map<String, String>,
                   private val soundPlayer: SoundPlayer,
                   private val sendStatusUpdate: (String) -> Unit) {
 
@@ -19,6 +21,7 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
     val sequenceFinishedEvent: Map<String, EGameEvent> = mapOf(
         NFCTag.SMC to EGameEvent.ATTACHFINISHED
     )
+
 
     fun registerEventHandler(handler: IGameEventHandler) {
         eventHandlers.add(handler)
@@ -35,20 +38,7 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
         }
         when (scannedTag) {
             NFCTag.START -> {
-                //inactivityTimer.resetTimer()
-                //inactivityTimer.startTimer()
                 sendEvent(EGameEvent.START)
-            }
-
-            NFCTag.PAUSE -> {
-                //inactivityTimer.stopTimer()
-                sendEvent(EGameEvent.PAUSE)
-            }
-
-            NFCTag.RESET -> {
-                //inactivityTimer.resetTimer()
-                //inactivityTimer.startTimer()
-                sendEvent(EGameEvent.RESET)
             }
 
             NFCTag.LOST -> {
@@ -60,8 +50,6 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
             }
 
             NFCTag.MSG1 -> {
-                //inactivityTimer.setNewTime(30000L)
-                //inactivityTimer.startTimer()
                 sendEvent(EGameEvent.MSG1)
             }
 
@@ -123,7 +111,7 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
     }
     private fun handleSequenceTag(scannedTag: String) {
         val sequence = currentSequence ?: return
-
+        var succScannedTag = "tag"
         if (currentStep >= sequence.size) {
             // Safety check: shouldn't happen
             Log.w("GameHandler", "Current step $currentStep is out of sequence bounds")
@@ -131,12 +119,13 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
         }
 
         val expectedTag = sequence[currentStep].uppercase()
-
         if (scannedTag == expectedTag) {
             sequenceStatus[scannedTag]?.let { status ->
                 Log.d("GameHandler", "Sending status for $scannedTag: $status")
                 sendStatusUpdate(status)  // Send proper step status
+                succScannedTag = scannedTag
             }
+
             val status123 = sequenceStatus[scannedTag]
 
             Log.d("GameHandler", " $status123 at step $currentStep")
@@ -158,7 +147,9 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
             // Wrong tag scanned during sequence
             soundPlayer.playSound(R.raw.bad_beep)
             Log.e("GameHandler", "Wrong tag! Expected $expectedTag but scanned $scannedTag")
-            sendStatusUpdate("Wrong tag! Expected: $expectedTag scanned: $scannedTag")
+            val wrongTagMsg = sequenceWrongTagScannedMsg[scannedTag]
+            val lastTagMsg = sequence[currentStep-1].uppercase()
+            sendStatusUpdate("Wrong tag! scanned: $scannedTag \nInfo:\n $wrongTagMsg \n Last successfully scanned tag:$lastTagMsg")
         }
         //inactivityTimer.startTimer()
     }
