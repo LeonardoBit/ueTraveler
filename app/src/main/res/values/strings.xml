@@ -21,8 +21,8 @@
     </string>
 
     <string name="welcome_message3">You will be communicating with network by scanning NFC tags in different places.
-        To start scanning press "Start scanning".
-        Scanning will stop automatically after tag will be scanned.
+        To start scanning press "Start scanning".The button will change to red color, indicating that scanning is ongoing.\n
+        Scanning will stop automatically after tag will be scanned.\nColor will change to blue, indicating that scanning is stopped.
     </string>
 
     <string name="welcome_message4_title">Capabilities
@@ -142,24 +142,24 @@
         \n
         Attach procedure complete. Congratulations!\n
         Next password latter is "C"(1,6,27)\n
-        But it is not the end of your travel.\n
-        Your user has just started moving through the world\n
+        But it is not the end of your travel.
+        Your user has just started moving through the world.
         To keep connection with the network
         you need to do a handover!\n
-        To connect to another cell you need to scan neighbor cell nTAG. To find next cell nTAG you need to access cellMap\n
+        To find Neighbor cell nTAG you need to access cellMap\n
         You can access cellMap from database\n
-        "SocketInTheMiddleOfTheTable.db".\n
+        "SocketInTheMiddleOfTheTable.db".\n Use this map to locate the next neighboring cell on the correct office floor.
     </string>
 
     <string name="re_attach_message">
 		Well done! You have connected again.\n
-		Go ahead and try to find the next cell. But next time check signal quality carefully.\n
+		Go ahead and try to find next cell. Remember to check signal quality carefully.\n
         You have received additional letter for the password "O"(2,21,29)
     </string>
 
     <string name="re_attach_message_after_handover">
 		Well done! You have connected again.\n
-		Proceed with Carrie aggregation procedure.\n
+		Proceed with Carrier aggregation procedure.\n
     </string>
 
     <string name="cell_found_title">Neighbor Cell Detected</string>
@@ -173,7 +173,7 @@
     <string name="good_cell1good_message_if_yes_title">Handover Successful!\n</string>
     <string name="good_cell1good_message_new_pci">nRPCI\n21</string>
     <string name="good_cell1good_message_if_yes">Letter for the password "N"(3,4,22).\n
-        But something is happening! It looks like your user has moved to a comfortable place\n
+        But something is happening! It looks like your user has moved to a comfortable place
         and started watching YouTube with 2160p-4k quality  – high data demand detected!\n
         \n
         Quickly find the locker number 3.039, open it and perform the Carrier Aggregation procedure to boost capacity and ensure smooth streaming.
@@ -192,7 +192,7 @@
         A PCI conflict in 5G NR happens when nearby cells share the same ID,
         causing interference during cell detection and handover.
         Connection was lost.
-        Please re-attach to the network and try again. To do this scan re-attach tag in starting room.
+        Please re-attach to the network and try again. To proceed, scan the Re-Attach tag located on the door of the starting room.
     </string>
     <string name="cell_bad_ho_failed_title">Handover failed!</string>
 

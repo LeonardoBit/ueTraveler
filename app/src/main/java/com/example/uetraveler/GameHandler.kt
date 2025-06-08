@@ -30,7 +30,7 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
     fun handleTag(tag: String,isConnected: Boolean) {
         val scannedTag = tag.uppercase()
 
-        if (isConnected) {
+        if (!isConnected && currentSequence != null) {
             if (isSequenceMode) {
                 handleSequenceTag(scannedTag)
                 return
@@ -99,7 +99,7 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
                 handleSequenceTag(scannedTag)
                 return
             }
-
+        }else{
             if (sequenceTriggers.containsKey(scannedTag)) {
                 currentSequence = sequenceTriggers[scannedTag]
                 isSequenceMode = true
@@ -112,6 +112,12 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
     private fun handleSequenceTag(scannedTag: String) {
         val sequence = currentSequence ?: return
         var succScannedTag = "tag"
+        val sequenceWrongTagScannedMsgMsg: Map<String, String> = mapOf(
+            NFCTag.MSG1 to "getString(R.string.sequence_bad_msg1)",
+            NFCTag.MSG3 to "getString(R.string.sequence_bad_msg3)",
+            NFCTag.RRCSC to "getString(R.string.sequence_bad_rrcsc)",
+            NFCTag.SMC to "getString(R.string.sequence_bad_smc)"
+        )
         if (currentStep >= sequence.size) {
             // Safety check: shouldn't happen
             Log.w("GameHandler", "Current step $currentStep is out of sequence bounds")
@@ -142,14 +148,18 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
                 currentSequence = null
                 currentStep = 0
                 sequenceFinishedEvent[scannedTag]?.let { sendEvent(it) }
+                val test = sequenceFinishedEvent[scannedTag]
+                Log.e("GameHandler", " scannedTag $scannedTag")
+                Log.e("GameHandler", "Wrong tag! Expected $test")
             }
         } else {
             // Wrong tag scanned during sequence
             soundPlayer.playSound(R.raw.bad_beep)
             Log.e("GameHandler", "Wrong tag! Expected $expectedTag but scanned $scannedTag")
             val wrongTagMsg = sequenceWrongTagScannedMsg[scannedTag]
+            val wrongTagMsgMsg = sequenceWrongTagScannedMsgMsg[sequence[currentStep-1]]
             val lastTagMsg = sequence[currentStep-1].uppercase()
-            sendStatusUpdate("Wrong tag! scanned: $scannedTag \nInfo:\n $wrongTagMsg \n Last successfully scanned tag:$lastTagMsg")
+            sendStatusUpdate("Wrong tag! scanned: $scannedTag \nInfo:\n $wrongTagMsg \n Last successfully scanned tag:$wrongTagMsgMsg")
         }
         //inactivityTimer.startTimer()
     }

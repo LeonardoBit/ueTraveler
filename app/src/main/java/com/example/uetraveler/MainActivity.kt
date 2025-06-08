@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
 
     private var nfcAdapter: NfcAdapter? = null
     private var isScanning = false
-    private var isConnected = true
+    private var isConnected = false
     private var isMsg1Scanned = false
     private var isAttachCompleted = false
     private var isHandoverCompleted = false
@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         scanButton = findViewById(R.id.btnScan)
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
 
-        inactivityTimer = InactivityTimer(600000L)
+        inactivityTimer = InactivityTimer(30000L)
 
         if (nfcAdapter == null) {
             Toast.makeText(this, "NFC not supported on this device", Toast.LENGTH_LONG).show()
@@ -142,8 +142,9 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         timerTextView.setBackgroundColor(Color.RED)
         setProcedureStatus(ProcedureStatus.CONNECTION_LOST)
         setCellPCI("PCI\nXX",lastConnectedPci)
-        setGameMessage("Re-attach to the last connected CELL")
+        setGameMessage("Please reattach to the last connected cell, or initiate the attach procedure if it hasn't been started or finished.")
         isConnected = false
+        isMsg1Scanned = false
         gameHandler.resetSequenceMode()
     }
 
@@ -211,18 +212,6 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             }
         }
     }
-
-    /*private fun quizCallback(correct: Boolean) {
-        val message = if (correct) "Correct!" else "Wrong!"
-        infoFragment.setInfoText(message)
-        showFragment(infoFragment)
-    }
-
-    private fun showFragment(frag: Fragment) {
-        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.fragmentContainerView, frag)
-        transaction.commit()
-    }*/
 
     private fun readFromTag(tag: Tag) {
         Log.d("MainActivity", "Scanning tag...")
@@ -432,6 +421,26 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             .show()
     }
 
+    private fun openAlertDialogWithTwoAnsBadCells(title: String,
+                                          message: String,
+                                          titleYes: String,
+                                          messageYes: String
+    ){
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setCancelable(false)
+            .setPositiveButton("Yes") { dialog, _ ->
+                doSomethingOnPositiveAnswer(titleYes, messageYes)
+                soundPlayer.playSound(R.raw.bad_beep)
+                dialog.dismiss()
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
     private fun openAlertDialogWithTwoAnsPCIFAIL(title: String,
                                           message: String,
                                           titleYes: String,
@@ -487,19 +496,32 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
 
     override fun handleGameEvent(event: EGameEvent) {
         if(event != EGameEvent.START && procInfoTextView.text == ProcedureStatus.CONNECTION_LOST ) {
-            if(event == EGameEvent.MEAS1 && lastConnectedPci==21) {
+            if (event == EGameEvent.MEAS1 && lastConnectedPci == 21) {
                 soundPlayer.playSound(R.raw.good_beep)
                 setProcedureStatus(ProcedureStatus.CONNECTED)
                 timerTextView.setBackgroundColor(Color.GREEN)
                 setGameMessage(getString(R.string.re_attach_message_after_handover))
-                setCellPCI("PCI\n21",lastConnectedPci)
+                setCellPCI("PCI\n21", lastConnectedPci)
                 isConnected = true
                 inactivityTimer.resetTimer()
                 inactivityTimer.startTimer()
-            }else {
+            }else if(event == EGameEvent.MSG1 && lastConnectedPci == 0){
+                inactivityTimer.startTimer()
+                timerTextView.setBackgroundColor(Color.GREEN)
+            }else if(event == EGameEvent.ATTACHFINISHED ){
+                    soundPlayer.playSound(R.raw.win)
+                    setProcedureStatus(ProcedureStatus.CONNECTED)
+                    setCellPCI("PCI\n12", 12)
+                    isConnected = true
+                    //isMsg1Scanned = false
+                    isAttachCompleted = true
+                    inactivityTimer.resetTimer()
+                    inactivityTimer.startTimer()
+            }
+            else {
                 openAlertDialog(
                     "Connection lost ",
-                    "Please attach again. To the last connected cell"
+                    "Please reattach to the last connected cell, or initiate the attach procedure if it hasn't been started or finished."
                 )
             }
         } else {
@@ -554,7 +576,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 }
 
                 EGameEvent.CELL2 -> {
-                        openAlertDialogWithTwoAns(
+                    openAlertDialogWithTwoAnsBadCells(
                             getString(R.string.lock_unlock_cell2_barred_title_DRVI52A),
                             getString(R.string.lock_unlock_cell2_barred_message_DRVI52A),
                             getString(R.string.lock_unlock_cell2_barred_title_if_yes),
@@ -563,7 +585,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 }
 
                 EGameEvent.CELL3 -> {
-                        openAlertDialogWithTwoAns(
+                    openAlertDialogWithTwoAnsBadCells(
                             getString(R.string.lock_unlock_cell3_barred_title_DRVI52D),
                             getString(R.string.lock_unlock_cell3_barred_message_DRVI52D),
                             getString(R.string.lock_unlock_cell3_barred_title_if_yes),
@@ -571,7 +593,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                         )
                 }
                 EGameEvent.CELL4 -> {
-                        openAlertDialogWithTwoAns(
+                    openAlertDialogWithTwoAnsBadCells(
                             getString(R.string.lock_unlock_cell4_bad_caps_title_DRVI52C),
                             getString(R.string.lock_unlock_cell4_bad_caps_message_DRVI52C),
                             getString(R.string.lock_unlock_cell4_bad_caps_title_if_yes),
@@ -591,7 +613,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
 
                 EGameEvent.MEAS2 -> {
                     if(!isHandoverCompleted) {
-                        openAlertDialogWithTwoAns(
+                        openAlertDialogWithTwoAnsBadCells(
                             getString(R.string.cell_found_title),
                             getString(R.string.cell3bad),
                             getString(R.string.cell_bad_ho_failed_title),
@@ -607,7 +629,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
 
                 EGameEvent.MEAS3 -> {
                     if(!isHandoverCompleted) {
-                        openAlertDialogWithTwoAns(
+                        openAlertDialogWithTwoAnsBadCells(
                             getString(R.string.cell_found_title),
                             getString(R.string.cell4bad),
                             getString(R.string.cell_bad_ho_failed_title),
