@@ -8,6 +8,7 @@ import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.nfc.tech.Ndef
 import android.graphics.Color
+import android.nfc.FormatException
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -24,6 +25,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.example.uetraveler.fragments.InfoFragment
 import com.example.uetraveler.fragments.QuizFragment
+import java.io.IOException
 
 class MainActivity : AppCompatActivity(), IGameEventHandler {
     private lateinit var timerTextView: TextView
@@ -146,6 +148,7 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         isConnected = false
         isMsg1Scanned = false
         gameHandler.resetSequenceMode()
+        playSoundBad()
     }
 
     private fun playSoundGood() {
@@ -217,16 +220,23 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
         Log.d("MainActivity", "Scanning tag...")
         val ndef = Ndef.get(tag)
 
-        ndef?.let {
-            it.connect()
-            val message = it.ndefMessage
+        if (ndef == null) {
+            Log.e("MainActivity", "NDEF is null, tag is not NDEF formatted.")
+            runOnUiThread {
+                Toast.makeText(this, "Unsupported NFC tag", Toast.LENGTH_SHORT).show()
+            }
+            return
+        }
 
+        try {
+            ndef.connect()
+
+            val message = ndef.ndefMessage
             if (message == null) {
                 Log.e("MainActivity", "NDEF Message is null. Tag might not be formatted.")
                 runOnUiThread {
                     Toast.makeText(this, "Empty or unsupported NFC tag", Toast.LENGTH_SHORT).show()
                 }
-                it.close()
                 return
             }
 
@@ -236,7 +246,8 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 val textEncoding = if (payload[0].toInt() and 128 == 0) "UTF-8" else "UTF-16"
                 val languageCodeLength = payload[0].toInt() and 63
                 val text = String(
-                    payload, languageCodeLength + 1,
+                    payload,
+                    languageCodeLength + 1,
                     payload.size - languageCodeLength - 1,
                     Charset.forName(textEncoding)
                 ).trim()
@@ -251,11 +262,22 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                     Toast.makeText(this, "NFC tag is empty", Toast.LENGTH_SHORT).show()
                 }
             }
-            it.close()
-        } ?: run {
-            Log.e("MainActivity", "NDEF is null, tag is not NDEF formatted.")
+
+        } catch (e: IOException) {
+            Log.e("MainActivity", "IOException while connecting to or reading tag", e)
             runOnUiThread {
-                Toast.makeText(this, "Unsupported NFC tag", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Error reading NFC tag. Please try again.", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: FormatException) {
+            Log.e("MainActivity", "FormatException while reading tag", e)
+            runOnUiThread {
+                Toast.makeText(this, "Invalid NFC tag format.", Toast.LENGTH_SHORT).show()
+            }
+        } finally {
+            try {
+                ndef.close()
+            } catch (e: IOException) {
+                Log.w("MainActivity", "Error closing NFC connection", e)
             }
         }
     }
@@ -521,8 +543,9 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
             else {
                 openAlertDialog(
                     "Connection lost ",
-                    "Please reattach to the last connected cell, or initiate the attach procedure if it hasn't been started or finished."
+                    "Please re-attach to the last connected cell, or initiate the attach procedure if it hasn't been started or finished."
                 )
+
             }
         } else {
             when (event) {
@@ -543,19 +566,25 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 }
 
                 EGameEvent.PCIFAIL -> {
-                    if(!isHandoverCompleted) {
-                        openAlertDialogWithTwoAnsPCIFAIL(
-                            getString(R.string.cell_found_title),
-                            getString(R.string.good_cell2_pcifail_message),
-                            getString(R.string.good_cell2_pcifail_title_if_yes),
-                            getString(R.string.good_cell2_pcifail_message_if_yes)
-                        )
-                        isConnected = false
+                    if(isAttachCompleted) {
+                        if (!isHandoverCompleted) {
+                            openAlertDialogWithTwoAnsPCIFAIL(
+                                getString(R.string.cell_found_title),
+                                getString(R.string.good_cell2_pcifail_message),
+                                getString(R.string.good_cell2_pcifail_title_if_yes),
+                                getString(R.string.good_cell2_pcifail_message_if_yes)
+                            )
+                            isConnected = false
+                        } else {
+                            openAlertDialog(
+                                "Handover already completed!",
+                                "You have already connected to a cell with good signal condition." +
+                                        "\n No need to handover to another cell"
+                            )
+                        }
                     }else{
-                        openAlertDialog("Handover already completed!",
-                            "You have already connected to a cell with good signal condition." +
-                                    "\n No need to handover to another cell")
-
+                        openAlertDialog("Handover is not possible!",
+                            "Finish attach procedure first. You have to be connected to cell to do a handover")
                     }
                 }
 
@@ -602,42 +631,68 @@ class MainActivity : AppCompatActivity(), IGameEventHandler {
                 }
 
                 EGameEvent.MEAS1 -> {
-                    openAlertDialogWithTwoAnsHoSucc(
-                        getString(R.string.cell_found_title),
-                        getString(R.string.good_cell1good_message),
-                        getString(R.string.good_cell1good_message_if_yes_title),
-                        getString(R.string.good_cell1good_message_if_yes)
-                    )
-                    timerTextView.setBackgroundColor(Color.GREEN)
+                    if(isAttachCompleted) {
+                        if (!isHandoverCompleted) {
+                            openAlertDialogWithTwoAnsHoSucc(
+                                getString(R.string.cell_found_title),
+                                getString(R.string.good_cell1good_message),
+                                getString(R.string.good_cell1good_message_if_yes_title),
+                                getString(R.string.good_cell1good_message_if_yes)
+                            )
+                            timerTextView.setBackgroundColor(Color.GREEN)
+                        }else{
+                            openAlertDialog(
+                                "Handover already completed!",
+                                "You have already connected to a cell with good signal condition." +
+                                        "\n No need to handover to another cell"
+                            )
+                        }
+                    }else{
+                        openAlertDialog("Handover is not possible!",
+                            "Finish attach procedure first. You have to be connected to cell to do a handover")
+                    }
                 }
 
                 EGameEvent.MEAS2 -> {
-                    if(!isHandoverCompleted) {
-                        openAlertDialogWithTwoAnsBadCells(
-                            getString(R.string.cell_found_title),
-                            getString(R.string.cell3bad),
-                            getString(R.string.cell_bad_ho_failed_title),
-                            getString(R.string.cell3bad_answer_yes)
-                        )
-                        timerTextView.setBackgroundColor(Color.GREEN)
+                    if(isAttachCompleted){
+                        if(!isHandoverCompleted) {
+                            openAlertDialogWithTwoAnsBadCells(
+                                getString(R.string.cell_found_title),
+                                getString(R.string.cell3bad),
+                                getString(R.string.cell_bad_ho_failed_title),
+                                getString(R.string.cell3bad_answer_yes)
+                            )
+                            timerTextView.setBackgroundColor(Color.GREEN)
+                        }else{
+                            openAlertDialog("Handover already completed!",
+                                "You have already connected to a cell with good signal condition." +
+                                        "\n No need to handover to another cell")
+                        }
                     }else{
-                        openAlertDialog("Handover already completed!",
-                            "You have already connected to a cell with good signal condition." +
-                                    "\n No need to handover to another cell")
+                        openAlertDialog("Handover is not possible!",
+                            "Finish attach procedure first. You have to be connected to cell to do a handover")
                     }
                 }
 
                 EGameEvent.MEAS3 -> {
-                    if(!isHandoverCompleted) {
-                        openAlertDialogWithTwoAnsBadCells(
-                            getString(R.string.cell_found_title),
-                            getString(R.string.cell4bad),
-                            getString(R.string.cell_bad_ho_failed_title),
-                            getString(R.string.cell4bad_answer_yes)
-                        )
-                        timerTextView.setBackgroundColor(Color.GREEN)
+                    if(isAttachCompleted) {
+                        if (!isHandoverCompleted) {
+                            openAlertDialogWithTwoAnsBadCells(
+                                getString(R.string.cell_found_title),
+                                getString(R.string.cell4bad),
+                                getString(R.string.cell_bad_ho_failed_title),
+                                getString(R.string.cell4bad_answer_yes)
+                            )
+                            timerTextView.setBackgroundColor(Color.GREEN)
+                        } else {
+                            openAlertDialog(
+                                "Handover already completed!",
+                                "You have already connected to a cell with good signal condition.\n No need to handover to another cell"
+                            )
+                        }
                     }else{
-                        openAlertDialog("Handover already completed!","You have already connected to a cell with good signal condition.\n No need to handover to another cell")
+                        openAlertDialog("Handover is not possible!",
+                            "Finish attach procedure first. You have to be connected to cell to do a handover")
                     }
                 }
 

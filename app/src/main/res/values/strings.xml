@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ueTraveler</string>
+    <string name="app_name">UE Adventure</string>
 
     <string name="welcome_message_title">
         Welcome to the network
@@ -160,20 +160,23 @@
     <string name="re_attach_message_after_handover">
 		Well done! You have connected again.\n
 		Proceed with Carrier aggregation procedure.\n
+        Quickly find the locker number 3.039, open it and perform the Carrier Aggregation procedure to boost capacity and ensure smooth streaming.
     </string>
 
     <string name="cell_found_title">Neighbor Cell Detected</string>
 
-    <string name="good_cell1good_message"> RSRP = -67 dBm\n
-        RSRQ = -8 dB\n
+    <string name="good_cell1good_message"> RSRP = -70 dBm\n
+        RSRQ = -12 dB\n
         nRPCI = 21\n
+        Current Serving cell signal:\n
+        RSRP = -78, RSRP = -16\n
         Do you want to perform a Handover to this cell?
     </string>
 
     <string name="good_cell1good_message_if_yes_title">Handover Successful!\n</string>
     <string name="good_cell1good_message_new_pci">nRPCI\n21</string>
     <string name="good_cell1good_message_if_yes">Letter for the password "N"(3,4,22).\n
-        But something is happening! It looks like your user has moved to a comfortable place
+        Something is happening! It looks like your user has moved to a comfortable place
         and started watching YouTube with 2160p-4k quality  – high data demand detected!\n
         \n
         Quickly find the locker number 3.039, open it and perform the Carrier Aggregation procedure to boost capacity and ensure smooth streaming.
@@ -182,6 +185,8 @@
     <string name="good_cell2_pcifail_message"> RSRP = -67 dBm\n
         RSRQ = -8 dB\n
         nRPCI = 21\n
+        Current Serving cell signal:\n
+        RSRP = -76, RSRP = -12\n
         Do you want to perform a Handover to this cell?
     </string>
     <string name="good_cell2_pcifail_title_if_yes">Handover Failed – PCI Conflict Detected!\n</string>
@@ -199,6 +204,8 @@
     <string name="cell3bad"> RSRP = -80 dBm\n
         RSRQ = -9 dB\n
         nRPCI = 15\n
+        Current Serving cell signal:\n
+        RSRP = -70, RSRP = -8\n
         Do you want to perform a Handover to this cell?
     </string>
     <string name="cell3bad_answer_yes">
@@ -208,6 +215,8 @@
     <string name="cell4bad"> RSRP = -85 dBm\n
         RSRQ = -6 dB\n
         nRPCI = 31\n
+        Current Serving cell signal:\n
+        RSRP = -72, RSRP = -9\n
         Do you want to perform a Handover to this cell?
     </string>
     <string name="cell4bad_answer_yes">

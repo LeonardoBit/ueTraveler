@@ -37,7 +37,7 @@
             android:background="#3274EF"
             android:textColor="@android:color/white"
             android:gravity="center"
-            android:text="Signal quality"
+            android:text="PCI"
             android:textSize="20sp" />
     </LinearLayout>
     <TextView
