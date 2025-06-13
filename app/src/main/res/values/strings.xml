@@ -12,7 +12,8 @@
         Attach procedure
     </string>
 
-    <string name="welcome_message2">Good job with unlocking needed cells!
+    <string name="welcome_message2">Good job with unlocking needed cells!\n
+        As a reward you received letter D(9,23,31).
         Now you can attach to it. To do that you need to choose suitable cell and perform an attach.
         Which one is suitable? The one you will be CAPABLE to handle as a UE.
     </string>
@@ -27,7 +28,7 @@
 
     <string name="welcome_message4_title">Capabilities
     </string>
-    <string name="welcome_message4">First step - you need to know what is your capabilities. To know that scan first tag on YOUR desktop.
+    <string name="welcome_message4">First step - you need to know what is your capabilities. To know that scan first tag on IPHONE desktop.
         Good luck with further adventures and procedures!
     </string>
 
@@ -145,7 +146,7 @@
         But it is not the end of your travel.
         Your user has just started moving through the world.
         To keep connection with the network
-        you need to do a handover!\n
+        you need to do a HANDOVER!\n
         To find Neighbor cell nTAG you need to access cellMap\n
         You can access cellMap from database\n
         "SocketInTheMiddleOfTheTable.db".\n Use this map to locate the next neighboring cell on the correct office floor.
@@ -160,33 +161,40 @@
     <string name="re_attach_message_after_handover">
 		Well done! You have connected again.\n
 		Proceed with Carrier aggregation procedure.\n
-        Quickly find the locker number 3.039, open it and perform the Carrier Aggregation procedure to boost capacity and ensure smooth streaming.
+        Quickly find the locker number 1.044, open it and perform the Carrier Aggregation procedure to boost capacity and ensure smooth streaming.
     </string>
 
     <string name="cell_found_title">Neighbor Cell Detected</string>
 
-    <string name="good_cell1good_message"> RSRP = -70 dBm\n
+    <string name="good_cell1good_message"> RSRP = -66 dBm\n
         RSRQ = -12 dB\n
         nRPCI = 21\n
         Current Serving cell signal:\n
-        RSRP = -78, RSRP = -16\n
+        RSRP = -98, RSRQ = -16\n
         Do you want to perform a Handover to this cell?
     </string>
 
     <string name="good_cell1good_message_if_yes_title">Handover Successful!\n</string>
     <string name="good_cell1good_message_new_pci">nRPCI\n21</string>
-    <string name="good_cell1good_message_if_yes">Letter for the password "N"(3,4,22).\n
+    <string name="good_cell1good_message_if_yes_floor3">Letter for the password "N"(3,4,22).\n
         Something is happening! It looks like your user has moved to a comfortable place
         and started watching YouTube with 2160p-4k quality  – high data demand detected!\n
         \n
-        Quickly find the locker number 3.039, open it and perform the Carrier Aggregation procedure to boost capacity and ensure smooth streaming.
+        Quickly find the locker number 3.048, open it and perform the Carrier Aggregation procedure to boost capacity and ensure smooth streaming.
+    </string>
+
+    <string name="good_cell1good_message_if_yes_floor1">Letter for the password "N"(3,4,22).\n
+        Something is happening! It looks like your user has moved to a comfortable place
+        and started watching YouTube with 2160p-4k quality  – high data demand detected!\n
+        \n
+        Quickly find the locker number 1.044, open it and perform the Carrier Aggregation procedure to boost capacity and ensure smooth streaming.
     </string>
 
     <string name="good_cell2_pcifail_message"> RSRP = -67 dBm\n
         RSRQ = -8 dB\n
         nRPCI = 21\n
         Current Serving cell signal:\n
-        RSRP = -76, RSRP = -12\n
+        RSRP = -96, RSRQ = -12\n
         Do you want to perform a Handover to this cell?
     </string>
     <string name="good_cell2_pcifail_title_if_yes">Handover Failed – PCI Conflict Detected!\n</string>
@@ -205,22 +213,22 @@
         RSRQ = -9 dB\n
         nRPCI = 15\n
         Current Serving cell signal:\n
-        RSRP = -70, RSRP = -8\n
+        RSRP = -70, RSRQ = -8\n
         Do you want to perform a Handover to this cell?
     </string>
     <string name="cell3bad_answer_yes">
-        Target cell rejected due to insufficient signal quality. Look for another cell with better signal.
+        Target cell rejected due to insufficient signal quality. Look for another cell with better signal. You lost 100 seconds!!
     </string>
 
-    <string name="cell4bad"> RSRP = -85 dBm\n
+    <string name="cell4bad"> RSRP = -73 dBm\n
         RSRQ = -6 dB\n
         nRPCI = 31\n
         Current Serving cell signal:\n
-        RSRP = -72, RSRP = -9\n
+        RSRP = -85, RSRQ = -9\n
         Do you want to perform a Handover to this cell?
     </string>
     <string name="cell4bad_answer_yes">
-        Target cell rejected due to insufficient signal quality. Look for another cell with better signal.
+        Target cell rejected due to insufficient signal quality (Not all A5 measurement conditions met). You lost 100 seconds!! Look for another cell with better signal.
     </string>
 
     <string name="ca_done_congratulation_title">
@@ -229,7 +237,8 @@
     <string name="ca_done_congratulation_message">
         You have completed all necessary procedures. Throughput is on maximum level.
         User is watching video with maximum quality and stable connection.
-        Last letter for the password is "E" (5,8,11,16,19,26)
+        Last letters for the password is "E" (5,8,11,16,19,26), "T" (7,12,24).
+        Return to the start room show the password and receive the reward.
     </string>
 
 

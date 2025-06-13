@@ -65,8 +65,11 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
                 sendEvent(EGameEvent.CELL4)
             }
 
-            NFCTag.MEAS1 -> {
-                sendEvent(EGameEvent.MEAS1)
+            NFCTag.MEAS1F1 -> {
+                sendEvent(EGameEvent.MEAS1F1)
+            }
+            NFCTag.MEAS1F3 -> {
+                sendEvent(EGameEvent.MEAS1F3)
             }
 
             NFCTag.MEAS2 -> {
@@ -113,10 +116,10 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
         val sequence = currentSequence ?: return
         var succScannedTag = "tag"
         val sequenceWrongTagScannedMsgMsg: Map<String, String> = mapOf(
-            NFCTag.MSG1 to "getString(R.string.sequence_bad_msg1)",
-            NFCTag.MSG3 to "getString(R.string.sequence_bad_msg3)",
-            NFCTag.RRCSC to "getString(R.string.sequence_bad_rrcsc)",
-            NFCTag.SMC to "getString(R.string.sequence_bad_smc)"
+            NFCTag.MSG1 to "MSG1",
+            NFCTag.MSG3 to "MSG3",
+            NFCTag.RRCSC to "RRCSetupComplete",
+            NFCTag.SMC to "SecurityModeComplete"
         )
         if (currentStep >= sequence.size) {
             // Safety check: shouldn't happen
@@ -158,8 +161,7 @@ class GameHandler(private var inactivityTimer: InactivityTimer,
             Log.e("GameHandler", "Wrong tag! Expected $expectedTag but scanned $scannedTag")
             val wrongTagMsg = sequenceWrongTagScannedMsg[scannedTag]
             val wrongTagMsgMsg = sequenceWrongTagScannedMsgMsg[sequence[currentStep-1]]
-            val lastTagMsg = sequence[currentStep-1].uppercase()
-            sendStatusUpdate("Wrong tag! scanned: $scannedTag \nInfo:\n $wrongTagMsg \n Last successfully scanned tag:$wrongTagMsgMsg")
+            sendStatusUpdate("Wrong message sent. Info:\n $wrongTagMsg \n Last successfully sent message:$wrongTagMsgMsg")
         }
         //inactivityTimer.startTimer()
     }

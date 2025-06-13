@@ -59,5 +59,11 @@ class InactivityTimer(private var totalTimeInMillis: Long = 10000L) {
         timeLeftInMillis = newTimeInMillis
     }
 
+    fun decreaseTimer(decreaseNumOfSecondsInMillis: Long){
+        stopTimer()
+        timeLeftInMillis -= decreaseNumOfSecondsInMillis
+        startTimer()
+    }
+
 
 }
